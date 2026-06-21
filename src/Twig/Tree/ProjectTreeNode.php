@@ -5,6 +5,7 @@ namespace Mosparo\Twig\Tree;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Mosparo\Entity\Project;
 use Mosparo\Entity\ProjectGroup;
 
@@ -83,8 +84,8 @@ class ProjectTreeNode
 
     public function sort(): void
     {
-        $projectGroupSortCriteria = (new Criteria())->orderBy(['projectGroup.name' => 'ASC']);
-        $projectSortCriteria = (new Criteria())->orderBy(['name' => 'ASC']);
+        $projectGroupSortCriteria = (new Criteria(accessRawFieldValues: true))->orderBy(['projectGroup.name' => Order::Ascending]);
+        $projectSortCriteria = (new Criteria(accessRawFieldValues: true))->orderBy(['name' => Order::Descending]);
 
         $this->children = $this->children->matching($projectGroupSortCriteria);
         $this->projects = $this->projects->matching($projectSortCriteria);
