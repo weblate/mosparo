@@ -980,12 +980,13 @@
                                                         {{ 'submission.view.verificationSimulation.labels.validationAndFormDataSignature'|trans }}
                                                     </th>
                                                     <td>
-                                                        {% apply spaceless %}
-                                                            <code class="cursor-help">
-                                                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'submission.view.verificationSimulation.hints.validationSignature'|trans }}">{{ verificationSimulation.validationSignature }}</span>
-                                                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'submission.view.verificationSimulation.hints.formDataSignature'|trans }}">{{ verificationSimulation.formDataSignature }}</span>
-                                                            </code>
-                                                        {% endapply %}
+                                                        <code class="cursor-help">
+                                                            {#--#}
+                                                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'submission.view.verificationSimulation.hints.validationSignature'|trans }}">{{ verificationSimulation.validationSignature }}</span>
+                                                            {#--#}
+                                                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'submission.view.verificationSimulation.hints.formDataSignature'|trans }}">{{ verificationSimulation.formDataSignature }}</span>
+                                                            {#--#}
+                                                        </code>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -1108,12 +1109,13 @@
                                                             {{ 'submission.view.verificationSimulation.labels.apiEndpointAndRequestDataJson'|trans }}
                                                         </th>
                                                         <td>
-                                                            {% apply spaceless %}
-                                                                <code class="cursor-help">
-                                                                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'submission.view.verificationSimulation.hints.apiEndpoint'|trans }}">{{ verificationSimulation.apiEndpoint }}</span>
-                                                                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'submission.view.verificationSimulation.hints.requestDataJson'|trans }}">{{ verificationSimulation.requestDataJson }}</span>
-                                                                </code>
-                                                            {% endapply %}
+                                                            <code class="cursor-help">
+                                                                {#--#}
+                                                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'submission.view.verificationSimulation.hints.apiEndpoint'|trans }}">{{ verificationSimulation.apiEndpoint }}</span>
+                                                                {#--#}
+                                                                <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'submission.view.verificationSimulation.hints.requestDataJson'|trans }}">{{ verificationSimulation.requestDataJson }}</span>
+                                                                {#--#}
+                                                            </code>
                                                         </td>
                                                     </tr>
                                                     <tr>

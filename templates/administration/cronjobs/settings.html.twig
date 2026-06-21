@@ -47,9 +47,9 @@
                                         <pre>{{ cronjobUrl }}</pre>
 
                                         <h4>{{ 'administration.cronJobs.setup.titles.example'|trans }}</h4>
-                                        <pre>{% apply spaceless %}
+                                        <pre>{#--#}
 */{{ webCronJobInterval }} * * * * wget -q {{ cronjobUrl }} > /dev/null 2>&1
-{% endapply %}</pre>
+{#--#}</pre>
 
                                         <div class="alert alert-info">
                                             {{ 'administration.cronJobs.setup.web.infoWgetPath'|trans({'%wgetBinary%': '<code>wget</code>'})|raw }}
@@ -69,26 +69,26 @@
                                     <h4>{{ 'administration.cronJobs.setup.titles.commands'|trans }}</h4>
                                     <p>{{ 'administration.cronJobs.setup.cli.intro'|trans }}</p>
 
-                                    <pre>{% apply spaceless %}
+                                    <pre>{#--#}
 php bin/console mosparo:cleanup-database
 php bin/console mosparo:rule-packages:refresh
 {% if isGeoIp2Active -%}
 php bin/console mosparo:geoip2:download-database
 {%- endif -%}
-{% endapply %}</pre>
+{#--#}</pre>
 
                                     <div class="alert alert-info">
                                         {{ 'administration.cronJobs.setup.cli.infoAdjustPaths'|trans({'%wgetBinary%': '<code>wget</code>'})|raw }}
                                     </div>
 
                                     <h4>{{ 'administration.cronJobs.setup.titles.example'|trans }}</h4>
-                                    <pre>{% apply spaceless %}
+                                    <pre>{#--#}
 */15 * * * * php bin/console mosparo:cleanup-database
 0 */2 * * * php bin/console mosparo:rule-packages:refresh
 {% if isGeoIp2Active -%}
 {{ random(0, 59) }} {{ random(0, 23) }} * * {{ random(0, 6) }} php bin/console mosparo:geoip2:download-database
 {%- endif -%}
-{% endapply %}</pre>
+{#--#}</pre>
                                 </div>
                             </div>
                         </div>
