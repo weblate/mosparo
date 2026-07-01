@@ -35,6 +35,8 @@ doctrine:
         report_fields_where_declared: true
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        identity_generation_preferences:
+            Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
         auto_mapping: true
         mappings:
             Mosparo\Entity:
@@ -43,9 +45,17 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'Mosparo\Entity'
                 alias: Mosparo
+        controller_resolver:
+            auto_mapping: false
 
         filters:
             project_related_filter: Mosparo\Doctrine\ProjectRelatedFilter
+
+when@test:
+    doctrine:
+        dbal:
+            # "TEST_TOKEN" is typically set by ParaTest
+            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 
 when@prod:
     doctrine:
