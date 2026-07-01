@@ -36,7 +36,7 @@ if (!file_exists(__DIR__ . '/../.env')) {
 
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
-return function (array $context) {
+return static function (array $context) {
     // Replace the headers if there was configured a new name for headers in the security settings
     // in the administration interface. We do not replace the headers if the TRUSTED_PROXIES env
     // variable is set in the .env.local.
