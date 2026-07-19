@@ -1,7 +1,7 @@
-{% if row.spamRating >= row.spamDetectionRating %}
+{% if item.spamRating >= item.spamDetectionRating %}
     <span class="text-danger">
 {% else %}
     <span class="text-success">
 {% endif %}
-    <strong>{{ row.spamRating }} / {{ row.spamDetectionRating }}</strong>
+    <strong>{{ item.spamRating }} / {{ item.spamDetectionRating }}</strong>
 </span>

@@ -34,7 +34,6 @@
         "mosparo/php-api-client": "^2.0",
         "mosparo/specifications": "^7.0",
         "nelmio/security-bundle": "^3.0",
-        "omines/datatables-bundle": "^0.10.0",
         "opis/json-schema": "^2.6",
         "paragonie/sodium_compat": "^2.5",
         "phpdocumentor/reflection-docblock": "^6.0",

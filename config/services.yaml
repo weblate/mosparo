@@ -274,8 +274,3 @@ services:
         tags:
             - { name: security.expression_language_provider }
             - { name: routing.expression_language_provider }
-
-    Mosparo\DataTable\MosparoDataTableFactory:
-        arguments:
-            $config: '%datatables.config%'
-            $renderer: '@datatables.renderer'

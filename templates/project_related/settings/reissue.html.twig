@@ -22,12 +22,14 @@
                             <h2 class="card-title text-center mb-4">{{ 'settings.general.apiKeys.reissueApiKeys.title'|trans }}</h2>
 
                             <div class="alert alert-important alert-warning">
-                                <p>
-                                    {{ 'settings.general.apiKeys.reissueApiKeys.confirm'|trans({ '%projectName%': '<strong>' ~ project.name|escape ~ '</strong>' })|raw }}
-                                </p>
-                                <p>
-                                    {{ 'general.infoUndo'|trans }}
-                                </p>
+                                <div>
+                                    <p>
+                                        {{ 'settings.general.apiKeys.reissueApiKeys.confirm'|trans({ '%projectName%': '<strong>' ~ project.name|escape ~ '</strong>' })|raw }}
+                                    </p>
+                                    <p>
+                                        {{ 'general.infoUndo'|trans }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

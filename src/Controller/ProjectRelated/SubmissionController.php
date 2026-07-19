@@ -5,17 +5,13 @@ namespace Mosparo\Controller\ProjectRelated;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Mosparo\ApiClient\RequestHelper;
-use Mosparo\DataTable\MosparoDataTableFactory;
 use Mosparo\Entity\Submission;
 use Mosparo\Helper\CleanupHelper;
+use Mosparo\UserInterface\GridTable\Column;
+use Mosparo\UserInterface\GridTable\Factory;
 use Mosparo\Util\StringUtil;
 use Mosparo\Verification\GeneralVerification;
-use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
-use Omines\DataTablesBundle\Column\TextColumn;
-use Omines\DataTablesBundle\Column\TwigColumn;
-use Omines\DataTablesBundle\DataTable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -26,95 +22,104 @@ class SubmissionController extends AbstractController implements ProjectRelatedI
 
     #[Route('/', name: 'submission_list')]
     #[Route('/filter/{filter}', name: 'submission_list_filtered')]
-    public function index(Request $request, MosparoDataTableFactory $dataTableFactory, CleanupHelper $cleanupHelper, $filter = ''): Response
+    public function index(EntityManagerInterface $entityManager, Factory $factory, CleanupHelper $cleanupHelper, $filter = ''): Response
     {
         if (!in_array($filter, ['spam', 'valid'])) {
             $filter = '';
         }
 
-        $table = $dataTableFactory->create(['autoWidth' => true])
-            ->add('id', TextColumn::class, ['label' => 'submission.list.id'])
-            ->add('page', TwigColumn::class, [
-                'label' => 'submission.list.page',
-                'propertyPath' => 'submitToken.pageTitle',
-                'template' => 'project_related/submission/list/_page.html.twig'
-            ])
-            ->add('data', TwigColumn::class, [
-                'label' => 'submission.list.ipAddress',
-                'template' => 'project_related/submission/list/_ipAddress.html.twig'
-            ])
-            ->add('spam', TwigColumn::class, [
-                'label' => 'submission.list.spam',
-                'template' => 'project_related/submission/list/_spam.html.twig',
-                'className' => 'text-center border-left spam-column'
-            ])
-            ->add('spamRating', TwigColumn::class, [
-                'label' => 'submission.list.spamRating',
-                'template' => 'project_related/submission/list/_spamRating.html.twig',
-                'className' => 'text-center spam-column'
-            ])
-            ->add('spamDetectionRating', TextColumn::class, ['visible' => false])
-            ->add('submittedAt', TwigColumn::class, [
-                'label' => 'submission.list.submittedAt',
-                'template' => 'project_related/submission/list/_date.html.twig',
-                'className' => 'text-center spam-column'
-            ])
-            ->add('valid', TwigColumn::class, [
-                'label' => 'submission.list.valid',
-                'template' => 'project_related/submission/list/_valid.html.twig',
-                'className' => 'text-center border-left verification-column'
-            ])
-            ->add('verifiedAt', TwigColumn::class, [
-                'label' => 'submission.list.verifiedAt',
-                'template' => 'project_related/submission/list/_date.html.twig',
-                'className' => 'text-center border-right verification-column'
-            ])
-            ->add('actions', TwigColumn::class, [
-                'label' => 'submission.list.actions',
-                'className' => 'buttons',
-                'template' => 'project_related/submission/list/_actions.html.twig',
-            ])
-            ->addOrderBy('submittedAt', DataTable::SORT_DESCENDING)
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => Submission::class,
-                'query' => function (QueryBuilder $builder) use ($filter) {
-                    $builder
-                        ->select('e')
-                        ->from(Submission::class, 'e')
-                        ->where('e.submitToken IS NOT NULL')
+        $adapter = (new \Mosparo\UserInterface\GridTable\Adapter\OrmAdapter($entityManager, Submission::class))
+            ->setQueryCallback(function (QueryBuilder $qb) use ($filter) {
+                $qb
+                    ->where('e.submitToken IS NOT NULL')
+                ;
+
+                if ($filter === 'spam') {
+                    $expr = $qb->expr()->orX()
+                        ->add('e.spam = TRUE')
+                        ->add('e.valid = FALSE')
                     ;
+                } else if ($filter === 'valid') {
+                    $expr = $qb->expr()->andX()
+                        ->add('e.spam = FALSE')
+                        ->add('e.valid = TRUE')
+                    ;
+                } else {
+                    $expr = $qb->expr()->orX()
+                        ->add('e.spam = TRUE')
+                        ->add('e.valid IS NOT NULL')
+                    ;
+                }
 
-                    if ($filter === 'spam') {
-                        $expr = $builder->expr()->orX()
-                            ->add('e.spam = TRUE')
-                            ->add('e.valid = FALSE')
-                        ;
-                    } else if ($filter === 'valid') {
-                        $expr = $builder->expr()->andX()
-                            ->add('e.spam = FALSE')
-                            ->add('e.valid = TRUE')
-                        ;
-                    } else {
-                        $expr = $builder->expr()->orX()
-                            ->add('e.spam = TRUE')
-                            ->add('e.valid IS NOT NULL')
-                        ;
-                    }
+                $qb->andWhere($expr);
+            })
+        ;
 
-                    $builder->andWhere($expr);
-                },
-            ])
-            ->handleRequest($request);
+        $table = $factory->create($adapter)
+            ->addColumn(new Column('id', 'submission.list.id'))
+            ->addColumn(new Column(
+                'page',
+                'submission.list.page',
+                mapped: false,
+                sortable: false,
+                template: 'project_related/submission/list/_page.html.twig',
+            ))
+            ->addColumn(new Column(
+                'data',
+                'submission.list.ipAddress',
+                sortable: false,
+                template: 'project_related/submission/list/_ipAddress.html.twig',
+            ))
+            ->addColumn(new Column(
+                'spam',
+                'submission.list.spam',
+                template: 'project_related/submission/list/_spam.html.twig',
+                cellClass: 'text-center border-left spam-column',
+                headerGroup: 'submission.list.spam',
+            ))
+            ->addColumn(new Column(
+                'spamRating',
+                'submission.list.spamRating',
+                template: 'project_related/submission/list/_spamRating.html.twig',
+                cellClass: 'text-center spam-column',
+                headerGroup: 'submission.list.spam',
+            ))
+            ->addColumn(new Column(
+                'submittedAt',
+                'submission.list.submittedAt',
+                template: 'project_related/submission/list/_date.html.twig',
+                cellClass: 'text-center spam-column',
+                headerGroup: 'submission.list.spam',
+            ))
+            ->addColumn(new Column(
+                'valid',
+                'submission.list.valid',
+                template: 'project_related/submission/list/_valid.html.twig',
+                cellClass: 'text-center border-left verification-column',
+                headerGroup: 'submission.list.verification',
+            ))
+            ->addColumn(new Column(
+                'verifiedAt',
+                'submission.list.verifiedAt',
+                template: 'project_related/submission/list/_date.html.twig',
+                cellClass: 'text-center border-right verification-column',
+                headerGroup: 'submission.list.verification',
+            ))
+            ->addColumn(new Column(
+                'actions',
+                'submission.list.actions',
+                sortable: false,
+                mapped: false,
+                template: 'project_related/submission/list/_actions.html.twig',
+                cellClass: 'collapsed-label-invisible action-buttons',
+            ))
+            ->setSortBy('submittedAt', 'DESC')
+        ;
 
-        $config = $this->getParameter('datatables.config');
-        $table->setTemplate('project_related/submission/list/_table.html.twig', $config['template_parameters']);
-
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
+        $table->query();
 
         return $this->render('project_related/submission/list.html.twig', [
-            'datatable' => $table,
+            'table' => $table,
             'filter' => $filter,
             'lastDatabaseCleanup' => $cleanupHelper->getLastDatabaseCleanup(),
         ]);

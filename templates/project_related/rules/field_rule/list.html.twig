@@ -51,11 +51,7 @@
 {% block rulesPageBody %}
     <div class="row">
         <div class="col">
-            <div class="card">
-                <div id="rules">
-
-                </div>
-            </div>
+            {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'rules'} %}
         </div>
     </div>
 {% endblock %}
@@ -63,21 +59,18 @@
 {% block javascripts %}
     {{ parent() }}
 
-    <!-- Insert this at the end of your body element, but before the closing tag -->
-    <script src="{{ asset('bundles/datatables/js/datatables.js')|add_path_prefix }}"></script>
     {% cspscript %}
         <script>
-            $(function() {
-                $('#rules').initDataTables({{ datatable_settings(datatable) }}, {
-                    autoWidth: false,
-                    searching: false,
-                    info: false,
-                    responsive: true,
-                    columnDefs: [
-                        { width: "40%", targets: 0 },
-                        { width: "1%", targets: 3 }
+            $(function () {
+                new GridTable(
+                    $('#rules'),
+                    [
+                        ['(width >= 768px)', '1fr 20% 20% min-content'],
+                        ['(width >= 500px) and (width < 768px)', '1fr min-content min-content'],
+                        ['(width >= 450px) and (width < 500px)', '1fr min-content'],
+                        ['(width < 450px)', '1fr'],
                     ]
-                });
+                );
             });
         </script>
     {% endcspscript %}

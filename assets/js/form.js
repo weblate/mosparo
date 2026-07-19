@@ -1,4 +1,5 @@
-const $ = require('jquery');
+//const $ = require('jquery');
+import jQuery from 'jquery';
 
 let collectionToggleRemoveButton = function (list) {
     if (list.find('li').length > 1) {
@@ -51,41 +52,41 @@ window.updateCssVariable = updateCssVariable;
 window.updateMultipleCssVariable = updateMultipleCssVariable;
 window.getRandomUuid = getRandomUuid;
 
-$(document).ready(function () {
-    $('.collection-widget.add-allowed .add-item-button').click(function () {
-        let collectionObj = $(this).parents('.collection-widget');
+jQuery(document).ready(function () {
+    jQuery('.collection-widget.add-allowed .add-item-button').click(function () {
+        let collectionObj = jQuery(this).parents('.collection-widget');
         let list = collectionObj.find('.collection-list');
         let newWidget = list.attr('data-prototype');
 
         newWidget = newWidget.replace(/__name__/g, collectionGetRandomHash());
 
-        let newElem = $(list.attr('data-widget-tags'));
+        let newElem = jQuery(list.attr('data-widget-tags'));
         let containerEl = newElem;
         if (newElem.find('.input-group').length > 0) {
             containerEl = newElem.find('.input-group');
         }
         containerEl.append(newWidget);
-        containerEl.append($('<button></button>').attr('type', 'button').addClass('btn btn-danger btn-icon-only remove-item-button').html('<i class="ti ti-circle-minus"></i>'));
+        containerEl.append(jQuery('<button></button>').attr('type', 'button').addClass('btn btn-danger btn-icon-only remove-item-button').html('<i class="ti ti-circle-minus"></i>'));
         newElem.appendTo(list);
 
         collectionToggleRemoveButton(list);
     });
 
-    $('.collection-widget.add-allowed').each(function () {
-        let list = $(this).find('.collection-list');
+    jQuery('.collection-widget.add-allowed').each(function () {
+        let list = jQuery(this).find('.collection-list');
 
         if (list.find('li').length === 0) {
-            $(this).find('.add-item-button').trigger('click');
+            jQuery(this).find('.add-item-button').trigger('click');
         }
 
         collectionToggleRemoveButton(list);
     });
 
-    $('.collection-widget.remove-allowed').on('click', '.remove-item-button', function () {
-        let list = $(this).parents('.collection-list');
+    jQuery('.collection-widget.remove-allowed').on('click', '.remove-item-button', function () {
+        let list = jQuery(this).parents('.collection-list');
 
         if (list.find('li').length > 1) {
-            $(this).parents('li').remove();
+            jQuery(this).parents('li').remove();
         }
 
         collectionToggleRemoveButton(list);
@@ -93,11 +94,11 @@ $(document).ready(function () {
         list.trigger('collection-item-removed');
     });
 
-    $('.card-field-switch').on('change', function () {
-        let cardBody = $(this).parents('.card-body');
-        let fields = cardBody.find('input, textarea, select').not($(this)).not('.always-disabled');
-        let status = $(this).is(':checked');
-        let disabled = $(this).is(':disabled');
+    jQuery('.card-field-switch').on('change', function () {
+        let cardBody = jQuery(this).parents('.card-body');
+        let fields = cardBody.find('input, textarea, select').not(jQuery(this)).not('.always-disabled');
+        let status = jQuery(this).is(':checked');
+        let disabled = jQuery(this).is(':disabled');
 
         if (status && !disabled) {
             fields.prop('disabled', false);
@@ -108,11 +109,11 @@ $(document).ready(function () {
         cardBody.find('.sub-card-field-switch').trigger('change');
     }).trigger('change');
 
-    $('.sub-card-field-switch').on('change', function () {
-        let cardBody = $(this).parents('.sub-card-body');
-        let fields = cardBody.find('input, textarea, select').not($(this)).not('.always-disabled');
-        let status = $(this).is(':checked');
-        let disabled = $(this).is(':disabled');
+    jQuery('.sub-card-field-switch').on('change', function () {
+        let cardBody = jQuery(this).parents('.sub-card-body');
+        let fields = cardBody.find('input, textarea, select').not(jQuery(this)).not('.always-disabled');
+        let status = jQuery(this).is(':checked');
+        let disabled = jQuery(this).is(':disabled');
 
         if (status && !disabled) {
             fields.prop('disabled', false);
@@ -121,10 +122,10 @@ $(document).ready(function () {
         }
     }).trigger('change');
 
-    $('.full-card-field-switch').on('change', function () {
-        let cardBody = $(this).parents('.card').find('.card-body');
+    jQuery('.full-card-field-switch').on('change', function () {
+        let cardBody = jQuery(this).parents('.card').find('.card-body');
         let fields = cardBody.find('input, textarea, select').not('.always-disabled');
-        let status = $(this).is(':checked');
+        let status = jQuery(this).is(':checked');
 
         if (status) {
             fields.prop('disabled', false);
@@ -150,18 +151,18 @@ $(document).ready(function () {
             updateCssVariable(variableName, value, type);
         }
     };
-    $('input.colorpicker').wrap('<div class="colorpicker-container"></div>').each(function () {
-        let allowEmpty = $(this).data('colorpicker-allow-empty');
+    jQuery('input.colorpicker').wrap('<div class="colorpicker-container"></div>').each(function () {
+        let allowEmpty = jQuery(this).data('colorpicker-allow-empty');
         if (allowEmpty == null) {
             allowEmpty = true;
         }
 
-        let showAlpha = $(this).data('colorpicker-allow-alpha-value');
+        let showAlpha = jQuery(this).data('colorpicker-allow-alpha-value');
         if (showAlpha == null) {
             showAlpha = true;
         }
 
-        $(this).spectrum({
+        jQuery(this).spectrum({
             preferredFormat: "rgb",
             allowEmpty: allowEmpty,
             showInitial: true,
@@ -169,45 +170,45 @@ $(document).ready(function () {
             showAlpha: showAlpha,
             clickoutFiresChange: true,
             move: function (color) {
-                $(this).val(color);
+                jQuery(this).val(color);
 
-                updateVariable($(this), color, 'color');
-                $(this).trigger('color-change');
+                updateVariable(jQuery(this), color, 'color');
+                jQuery(this).trigger('color-change');
             }
         });
     }).on('change', function () {
-        $(this).spectrum('set', $(this).val());
+        jQuery(this).spectrum('set', jQuery(this).val());
 
-        updateVariable($(this), $(this).val(), 'color');
-        $(this).trigger('color-change');
+        updateVariable(jQuery(this), jQuery(this).val(), 'color');
+        jQuery(this).trigger('color-change');
     });
 
-    $('input[data-variable!=""]:not(.colorpicker)').change(function () {
+    jQuery('input[data-variable!=""]:not(.colorpicker)').change(function () {
         let type = 'number';
-        let val = $(this).val();
+        let val = jQuery(this).val();
 
-        if ($(this).is('input[type="checkbox"]')) {
+        if (jQuery(this).is('input[type="checkbox"]')) {
             type = 'checkbox';
         }
 
-        updateVariable($(this), val, type);
+        updateVariable(jQuery(this), val, type);
     });
 
-    $('input[data-variable!=""][data-variable]').each(function () {
+    jQuery('input[data-variable!=""][data-variable]').each(function () {
         let type = 'number';
-        let val = $(this).val();
+        let val = jQuery(this).val();
 
-        if ($(this).hasClass('colorpicker')) {
+        if (jQuery(this).hasClass('colorpicker')) {
             type = 'color';
-        } else if ($(this).is('input[type="checkbox"]')) {
+        } else if (jQuery(this).is('input[type="checkbox"]')) {
             type = 'checkbox';
         }
 
-        updateVariable($(this), val, type);
+        updateVariable(jQuery(this), val, type);
     });
 
-    $('.value-with-unit-widget[data-variable!=""][data-variable]').each(function () {
-        let el = $(this);
+    jQuery('.value-with-unit-widget[data-variable!=""][data-variable]').each(function () {
+        let el = jQuery(this);
 
         let getValue = function () {
             let value = el.find('input').val();
@@ -217,32 +218,32 @@ $(document).ready(function () {
         }
 
         el.find('input, select').change(function (ev) {
-            if ($(ev.target).is('select')) {
+            if (jQuery(ev.target).is('select')) {
                 let input = el.find('input');
                 let oldUnit = input.data('unit');
 
-                if (oldUnit === 'px' && $(this).val() !== 'px') {
+                if (oldUnit === 'px' && jQuery(this).val() !== 'px') {
                     // Simple px to rem calculation
                     input.val(input.val() / 16);
-                } else if ($(this).val() === 'px') {
+                } else if (jQuery(this).val() === 'px') {
                     // Simple rem to px calculation
                     input.val(input.val() * 16);
                 }
 
-                input.data('unit', $(this).val());
+                input.data('unit', jQuery(this).val());
             }
 
             updateVariable(el, getValue(), 'value-with-unit');
         });
 
-        $(this).find('input').data('unit', $(this).find('select').val());
+        jQuery(this).find('input').data('unit', jQuery(this).find('select').val());
 
         updateVariable(el, getValue(), 'value-with-unit');
     });
 
-    $('.btn-copy-input-value').click(function () {
-        let button = $(this);
-        let inputGroup = $(this).parents('.input-group');
+    jQuery('.btn-copy-input-value').click(function () {
+        let button = jQuery(this);
+        let inputGroup = jQuery(this).parents('.input-group');
         if (inputGroup.length === 0) {
             return;
         }
@@ -306,19 +307,19 @@ $(document).ready(function () {
         changeTimeout = setTimeout(changeValueCallback, changeIntervalTime);
     }
 
-    $('.btn-decrease-value, .btn-increase-value').on('mousedown mouseup', function (ev) {
+    jQuery('.btn-decrease-value, .btn-increase-value').on('mousedown mouseup', function (ev) {
         if (ev.type === 'mousedown') {
             if (changeDirection !== '') {
                 return;
             }
 
-            if ($(this).hasClass('btn-decrease-value')) {
+            if (jQuery(this).hasClass('btn-decrease-value')) {
                 changeDirection = '-';
-            } else if ($(this).hasClass('btn-increase-value')) {
+            } else if (jQuery(this).hasClass('btn-increase-value')) {
                 changeDirection = '+';
             }
 
-            changeInputField = $(this).parents('.input-group').find('input');
+            changeInputField = jQuery(this).parents('.input-group').find('input');
             changeIntervalTime = 400;
             changeValueCallback();
         } else if (ev.type === 'mouseup') {
@@ -333,7 +334,7 @@ $(document).ready(function () {
         }
     });
 
-    $('.btn-decrease-value').parents('.input-group').find('input').on('keydown keyup', function (ev) {
+    jQuery('.btn-decrease-value').parents('.input-group').find('input').on('keydown keyup', function (ev) {
         if (ev.keyCode !== 37 && ev.keyCode !== 38 && ev.keyCode !== 39 && ev.keyCode !== 40) {
             return;
         }
@@ -350,7 +351,7 @@ $(document).ready(function () {
                 changeDirection = '+';
             }
 
-            changeInputField = $(this);
+            changeInputField = jQuery(this);
             changeIntervalTime = 500;
             changeValueCallback();
         } else if (ev.type === 'keyup') {
@@ -362,12 +363,12 @@ $(document).ready(function () {
         return false;
     }).attr("autocomplete", "off");
 
-    $('.input-with-clear-button').each(function () {
-        let container = $(this);
+    jQuery('.input-with-clear-button').each(function () {
+        let container = jQuery(this);
         let input = container.find('input');
         let link = container.find('a');
         input.on('keyup change', function () {
-            if ($(this).val() === '') {
+            if (jQuery(this).val() === '') {
                 link.addClass('invisible');
             } else {
                 link.removeClass('invisible');

@@ -34,11 +34,7 @@
     <div class="container-xl">
         <div class="row">
             <div class="col">
-                <div class="card">
-                    <div id="rule_packages">
-
-                    </div>
-                </div>
+                {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'rulePackages'} %}
             </div>
         </div>
     </div>
@@ -47,24 +43,20 @@
 {% block javascripts %}
     {{ parent() }}
 
-    <!-- Insert this at the end of your body element, but before the closing tag -->
-    <script src="{{ asset('bundles/datatables/js/datatables.js')|add_path_prefix }}"></script>
     {% cspscript %}
         <script>
-            $(function() {
-                $('#rule_packages').initDataTables({{ datatable_settings(datatable) }}, {
-                    autoWidth: false,
-                    searching: false,
-                    info: false,
-                    columnDefs: [
-                        { width: "30%", targets: 0 },
-                        { width: "10%", targets: 1 },
-                        { width: "8%", targets: 2 },
-                        { width: "20%", targets: 3 },
-                        { width: "20%", targets: 4 },
-                        { width: "1%", targets: 5 }
+            $(function () {
+                new GridTable(
+                    $('#rulePackages'),
+                    [
+                        ['(width >= 1400px)', '1fr  min-content min-content min-content min-content min-content'],
+                        ['(width >= 992px) and (width < 1400px)', '1fr min-content min-content min-content min-content'],
+                        ['(width >= 768px) and (width < 992px)', '1fr min-content min-content min-content'],
+                        ['(width >= 570px) and (width < 768px)', '1fr min-content min-content'],
+                        ['(width >= 450px) and (width < 570px)', '1fr min-content'],
+                        ['(width < 450px)', '1fr'],
                     ]
-                });
+                );
             });
         </script>
     {% endcspscript %}

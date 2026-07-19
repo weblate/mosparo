@@ -1,8 +1,9 @@
-const $ = require('jquery');
+//const $ = require('jquery');
+import jQuery from 'jquery';
 
 const getColors = function (chartType)
 {
-    const isDark = $('body').data('bs-theme') === 'dark';
+    const isDark = jQuery('body').data('bs-theme') === 'dark';
     if (chartType === 'submissions') {
         if (isDark) {
             return {

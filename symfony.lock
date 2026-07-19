@@ -140,18 +140,6 @@
     "nikic/php-parser": {
         "version": "v4.10.4"
     },
-    "omines/datatables-bundle": {
-        "version": "0.1",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "0.1",
-            "ref": "467488ddc00aa190c37a4357f226457d4dd6b339"
-        },
-        "files": [
-            "config/packages/datatables.yaml"
-        ]
-    },
     "paragonie/constant_time_encoding": {
         "version": "v2.4.0"
     },
@@ -683,18 +671,15 @@
         ]
     },
     "symfony/webpack-encore-bundle": {
-        "version": "1.17",
+        "version": "2.4",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "1.10",
-            "ref": "eff2e505d4557c967b6710fe06bd947ba555cae5"
+            "version": "2.2",
+            "ref": "3a870e92b23917ae95f0796a0599b1aca11d4bfd"
         },
         "files": [
             "assets/app.js",
-            "assets/bootstrap.js",
-            "assets/controllers.json",
-            "assets/controllers/hello_controller.js",
             "assets/styles/app.css",
             "config/packages/webpack_encore.yaml",
             "package.json",

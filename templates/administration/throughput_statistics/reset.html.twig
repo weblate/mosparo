@@ -22,12 +22,14 @@
                             <h2 class="card-title text-center mb-4">{{ ('administration.throughputStatistics.reset.' ~ type ~ '.title')|trans }}</h2>
 
                             <div class="alert alert-important alert-danger">
-                                <p>
-                                    {{ ('administration.throughputStatistics.reset.' ~ type ~ '.confirm')|trans }}
-                                </p>
-                                <p>
-                                    {{ 'general.infoUndo'|trans }}
-                                </p>
+                                <div>
+                                    <p>
+                                        {{ ('administration.throughputStatistics.reset.' ~ type ~ '.confirm')|trans }}
+                                    </p>
+                                    <p>
+                                        {{ 'general.infoUndo'|trans }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

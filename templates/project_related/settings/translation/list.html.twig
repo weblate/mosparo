@@ -24,12 +24,8 @@
 
 {% block settingsPageBody %}
     <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div id="translations">
-
-                </div>
-            </div>
+        <div class="col">
+            {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'translations'} %}
         </div>
     </div>
 {% endblock %}
@@ -37,22 +33,17 @@
 {% block javascripts %}
     {{ parent() }}
 
-    <!-- Insert this at the end of your body element, but before the closing tag -->
-    <script src="{{ asset('bundles/datatables/js/datatables.js')|add_path_prefix }}"></script>
     {% cspscript %}
         <script>
-            $(function() {
-                $('#translations').initDataTables({{ datatable_settings(datatable) }}, {
-                    autoWidth: false,
-                    searching: false,
-                    info: false,
-                    columnDefs: [
-                    { width: "10%", targets: 0 },
-                    { width: "40%", targets: 1 },
-                    { width: "40%", targets: 2 },
-                    { width: "1%", targets: 3 }
-                ]
-                });
+            $(function () {
+                new GridTable(
+                    $('#translations'),
+                    [
+                        ['(width >= 1200px)', 'min-content 1fr 1fr min-content'],
+                        ['(width >= 450px) and (width < 1200px)', 'min-content 1fr 1fr'],
+                        ['(width < 450px)', 'min-content 1fr'],
+                    ]
+                );
             });
         </script>
     {% endcspscript %}

@@ -23,12 +23,14 @@
                             <h2 class="card-title text-center mb-4">{{ 'projectGroup.delete.title'|trans({ '%projectGroupName%': projectGroup.name }) }}</h2>
 
                             <div class="alert alert-important alert-danger">
-                                <p>
-                                    {{ 'projectGroup.delete.confirm'|trans({ '%projectGroupName%': '<strong>' ~ projectGroup.name|escape ~ '</strong>' })|raw }}
-                                </p>
-                                <p>
-                                    {{ 'general.infoUndo'|trans }}
-                                </p>
+                                <div>
+                                    <p>
+                                        {{ 'projectGroup.delete.confirm'|trans({ '%projectGroupName%': '<strong>' ~ projectGroup.name|escape ~ '</strong>' })|raw }}
+                                    </p>
+                                    <p>
+                                        {{ 'general.infoUndo'|trans }}
+                                    </p>
+                                </div>
                             </div>
 
                             <div class="alert alert-danger">

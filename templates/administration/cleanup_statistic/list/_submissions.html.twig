@@ -2,8 +2,8 @@
 
 {{ value }}
 
-{% if row.numberOfDeletedSubmissions %}
+{% if item.numberOfDeletedSubmissions %}
     <span class="status status-red" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ 'tooltip.deleted'|trans }}">
-        -{{ row.numberOfDeletedSubmissions }}
+        -{{ item.numberOfDeletedSubmissions }}
     </span>
 {% endif %}

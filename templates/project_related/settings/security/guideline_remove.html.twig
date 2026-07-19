@@ -22,12 +22,14 @@
                             <h2 class="card-title text-center mb-4">{{ 'settings.security.guideline.delete.title'|trans({ '%guidelineName%': guideline.name}) }}</h2>
 
                             <div class="alert alert-important alert-danger">
-                                <p>
-                                    {{ 'settings.security.guideline.delete.confirm'|trans({ '%guidelineName%': '<strong>' ~ guideline.name|escape ~ '</strong>' })|raw }}
-                                </p>
-                                <p>
-                                    {{ 'general.infoUndo'|trans }}
-                                </p>
+                                <div>
+                                    <p>
+                                        {{ 'settings.security.guideline.delete.confirm'|trans({ '%guidelineName%': '<strong>' ~ guideline.name|escape ~ '</strong>' })|raw }}
+                                    </p>
+                                    <p>
+                                        {{ 'general.infoUndo'|trans }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

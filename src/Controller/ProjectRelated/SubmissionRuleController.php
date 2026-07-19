@@ -3,12 +3,12 @@
 namespace Mosparo\Controller\ProjectRelated;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Mosparo\DataTable\MosparoDataTableFactory;
 use Mosparo\Entity\SubmissionRule;
 use Mosparo\Form\SubmissionRuleConfigValueFormType;
 use Mosparo\Rules\SubmissionRule\SubmissionRuleManager;
-use Omines\DataTablesBundle\Adapter\ArrayAdapter;
-use Omines\DataTablesBundle\Column\TwigColumn;
+use Mosparo\UserInterface\GridTable\Adapter\ArrayAdapter;
+use Mosparo\UserInterface\GridTable\Column;
+use Mosparo\UserInterface\GridTable\Factory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -37,37 +37,39 @@ class SubmissionRuleController extends AbstractController implements ProjectRela
     }
 
     #[Route('/', name: 'rules_submission_rule_list')]
-    public function index(Request $request, MosparoDataTableFactory $dataTableFactory): Response
+    public function index(Factory $factory): Response
     {
-        $table = $dataTableFactory->create(['autoWidth' => true])
-            ->add('name', TwigColumn::class, [
-                'label' => 'rules.submissionRule.list.name',
-                'template' => 'project_related/rules/submission_rule/list/_name.html.twig'
-            ])
-            ->add('enabled', TwigColumn::class, [
-                'label' => 'rules.submissionRule.list.status',
-                'template' => 'project_related/rules/submission_rule/list/_status.html.twig'
-            ])
-            ->add('actions', TwigColumn::class, [
-                'label' => 'rules.submissionRule.list.actions',
-                'className' => 'buttons',
-                'template' => 'project_related/rules/submission_rule/list/_actions.html.twig'
-            ])
-            ->addOrderBy('name')
-            ->createAdapter(ArrayAdapter::class, $this->getRulesArray())
-            ->handleRequest($request);
+        $table = $factory->create(new ArrayAdapter($this->getRulesArray()))
+            ->addColumn(new Column(
+                'name',
+                'rules.submissionRule.list.name',
+                template: 'project_related/rules/submission_rule/list/_name.html.twig',
+            ))
+            ->addColumn(new Column(
+                'enabled',
+                'rules.submissionRule.list.status',
+                template: 'project_related/rules/submission_rule/list/_status.html.twig',
+            ))
+            ->addColumn(new Column(
+                'actions',
+                'rules.submissionRule.list.actions',
+                sortable: false,
+                mapped: false,
+                template: 'project_related/rules/submission_rule/list/_actions.html.twig',
+                cellClass: 'collapsed-label-invisible action-buttons',
+            ))
+            ->setSortBy('name')
+        ;
 
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
+        $table->query();
 
         return $this->render('project_related/rules/submission_rule/list.html.twig', [
-            'datatable' => $table,
+            'table' => $table,
         ]);
     }
 
     #[Route('/configure/{key}', name: 'rules_submission_rule_configure')]
-    public function configure(Request $request, MosparoDataTableFactory $dataTableFactory, string $key): Response
+    public function configure(Request $request, string $key): Response
     {
         $submissionRule = $this->submissionRuleManager->getRule($key);
         if (!$submissionRule) {

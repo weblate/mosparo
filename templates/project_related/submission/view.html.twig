@@ -341,37 +341,39 @@
                 {% for generalVerification in generalVerifications %}
                     {% if not generalVerification.valid %}
                         <div class="alert alert-danger" role="alert">
-                            {% if generalVerification.key == 'minimumTime' %}
-                                <div class="d-flex">
-                                    <div>
-                                        <i class="ti ti-alarm icon alert-icon"></i>
+                            <div>
+                                {% if generalVerification.key == 'minimumTime' %}
+                                    <div class="d-flex">
+                                        <div>
+                                            <i class="ti ti-alarm icon alert-icon"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="alert-title">{{ 'submission.view.generalVerifications.minimumTime.title'|trans }}</h4>
+                                            <div class="text-muted">{{ 'submission.view.generalVerifications.minimumTime.text'|trans({'%seconds%': generalVerification.data.seconds, '%minimumTimeSeconds%': generalVerification.data.minimumTimeSeconds}) }}</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 class="alert-title">{{ 'submission.view.generalVerifications.minimumTime.title'|trans }}</h4>
-                                        <div class="text-muted">{{ 'submission.view.generalVerifications.minimumTime.text'|trans({'%seconds%': generalVerification.data.seconds, '%minimumTimeSeconds%': generalVerification.data.minimumTimeSeconds}) }}</div>
+                                {% elseif generalVerification.key == 'equalSubmissions' %}
+                                    <div class="d-flex">
+                                        <div>
+                                            <i class="ti ti-equal-double icon alert-icon"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="alert-title">{{ 'submission.view.generalVerifications.equalSubmissions.title'|trans }}</h4>
+                                            <div class="text-muted">{{ 'submission.view.generalVerifications.equalSubmissions.text'|trans({'%actualNumberOfEqualSubmissions%': generalVerification.data.actual, '%allowedNumberOfEqualSubmissions%': generalVerification.data.allowed}) }}</div>
+                                        </div>
                                     </div>
-                                </div>
-                            {% elseif generalVerification.key == 'equalSubmissions' %}
-                                <div class="d-flex">
-                                    <div>
-                                        <i class="ti ti-equal-double icon alert-icon"></i>
+                                {% elseif generalVerification.key == 'proofOfWork' %}
+                                    <div class="d-flex">
+                                        <div>
+                                            <i class="ti ti-cpu icon alert-icon"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="alert-title">{{ 'submission.view.generalVerifications.proofOfWork.title'|trans }}</h4>
+                                            <div class="text-muted">{{ 'submission.view.generalVerifications.proofOfWork.text'|trans }}</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 class="alert-title">{{ 'submission.view.generalVerifications.equalSubmissions.title'|trans }}</h4>
-                                        <div class="text-muted">{{ 'submission.view.generalVerifications.equalSubmissions.text'|trans({'%actualNumberOfEqualSubmissions%': generalVerification.data.actual, '%allowedNumberOfEqualSubmissions%': generalVerification.data.allowed}) }}</div>
-                                    </div>
-                                </div>
-                            {% elseif generalVerification.key == 'proofOfWork' %}
-                                <div class="d-flex">
-                                    <div>
-                                        <i class="ti ti-cpu icon alert-icon"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="alert-title">{{ 'submission.view.generalVerifications.proofOfWork.title'|trans }}</h4>
-                                        <div class="text-muted">{{ 'submission.view.generalVerifications.proofOfWork.text'|trans }}</div>
-                                    </div>
-                                </div>
-                            {% endif %}
+                                {% endif %}
+                            </div>
                         </div>
                     {% endif %}
                 {% endfor %}

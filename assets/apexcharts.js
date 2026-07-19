@@ -4,4 +4,4 @@
  * such element, apexcharts includes the styles directly in the JavaScript codes, which invalidates the
  * CSP header.
  */
-require('apexcharts/dist/apexcharts.css');
+import 'apexcharts/dist/apexcharts.css';

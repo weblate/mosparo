@@ -4,7 +4,6 @@ namespace Mosparo\Controller\ProjectRelated;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
-use Mosparo\DataTable\MosparoDataTableFactory;
 use Mosparo\Entity\RulePackage;
 use Mosparo\Entity\RulePackageProcessingJob;
 use Mosparo\Entity\RulePackageRuleCache;
@@ -16,10 +15,9 @@ use Mosparo\Enum\RulePackageTypeCategory;
 use Mosparo\Form\RulePackageFormType;
 use Mosparo\Helper\RulePackageHelper;
 use Mosparo\Rules\FieldRule\RuleTypeManager;
-use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
-use Omines\DataTablesBundle\Column\NumberColumn;
-use Omines\DataTablesBundle\Column\TextColumn;
-use Omines\DataTablesBundle\Column\TwigColumn;
+use Mosparo\UserInterface\GridTable\Adapter\OrmAdapter;
+use Mosparo\UserInterface\GridTable\Column;
+use Mosparo\UserInterface\GridTable\Factory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +32,7 @@ class RulePackageController extends AbstractController implements ProjectRelated
 
     protected EntityManagerInterface $entityManager;
 
-    protected MosparoDataTableFactory $dataTableFactory;
+    protected Factory $factory;
 
     protected RuleTypeManager $ruleTypeManager;
 
@@ -44,62 +42,62 @@ class RulePackageController extends AbstractController implements ProjectRelated
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        MosparoDataTableFactory $dataTableFactory,
+        Factory $factory,
         RuleTypeManager $ruleTypeManager,
         RulePackageHelper $rulePackageHelper,
         TranslatorInterface $translator
     ) {
         $this->entityManager = $entityManager;
-        $this->dataTableFactory = $dataTableFactory;
+        $this->factory = $factory;
         $this->ruleTypeManager = $ruleTypeManager;
         $this->rulePackageHelper = $rulePackageHelper;
         $this->translator = $translator;
     }
 
     #[Route('/', name: 'rule_package_list')]
-    public function index(Request $request): Response
+    public function index(): Response
     {
-        $table = $this->dataTableFactory->create(['autoWidth' => true])
-            ->add('name', TextColumn::class, ['label' => 'rulePackage.list.name'])
-            ->add('type', TwigColumn::class, [
-                'label' => 'rulePackage.list.type',
-                'template' => 'project_related/rule_package/list/_type.html.twig',
-            ])
-            ->add('status', TwigColumn::class, [
-                'label' => 'rulePackage.list.status',
-                'template' => 'project_related/rule_package/list/_status.html.twig',
-            ])
-            ->add('refreshedAt', TwigColumn::class, [
-                'label' => 'rulePackage.list.refreshedAt',
-                'propertyPath' => 'rulePackageCache.refreshedAt',
-                'template' => 'project_related/rule_package/list/_date.html.twig',
-            ])
-            ->add('updatedAt', TwigColumn::class, [
-                'label' => 'rulePackage.list.updatedAt',
-                'propertyPath' => 'rulePackageCache.updatedAt',
-                'template' => 'project_related/rule_package/list/_date.html.twig',
-            ])
-            ->add('actions', TwigColumn::class, [
-                'label' => 'rulePackage.list.actions',
-                'className' => 'buttons',
-                'template' => 'project_related/rule_package/list/_actions.html.twig'
-            ])
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => RulePackage::class,
-                'query' => function (QueryBuilder $builder) {
-                    $builder
-                        ->select('e')
-                        ->from(RulePackage::class, 'e');
-                },
-            ])
-            ->handleRequest($request);
+        $adapter = (new OrmAdapter($this->entityManager, RulePackage::class));
 
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
+        $table = $this->factory->create($adapter)
+            ->addColumn(new Column('name', 'rulePackage.list.name'))
+            ->addColumn(new Column(
+                'type',
+                'rulePackage.list.type',
+                template: 'project_related/rule_package/list/_type.html.twig',
+            ))
+            ->addColumn(new Column(
+                'status',
+                'rulePackage.list.status',
+                template: 'project_related/rule_package/list/_status.html.twig',
+            ))
+            ->addColumn(new Column(
+                'refreshedAt',
+                'rulePackage.list.refreshedAt',
+                mapped: false,
+                template: 'project_related/rule_package/list/_refreshedAt.html.twig',
+            ))
+            ->addColumn(new Column(
+                'updatedAt',
+                'rulePackage.list.updatedAt',
+                mapped: false,
+                template: 'project_related/rule_package/list/_updatedAt.html.twig',
+            ))
+            ->addColumn(new Column(
+                'actions',
+                'rules.fieldRule.list.actions',
+                sortable: false,
+                mapped: false,
+                template: 'project_related/rule_package/list/_actions.html.twig',
+                cellClass: 'collapsed-label-invisible action-buttons',
+            ))
+            ->setSortBy('name')
+        ;
+
+        $table->query();
 
         return $this->render('project_related/rule_package/list.html.twig', [
-            'datatable' => $table,
+            'table' => $table,
             'hasRulePackages' => $this->rulePackageHelper->hasRulePackages(),
         ]);
     }
@@ -345,7 +343,7 @@ class RulePackageController extends AbstractController implements ProjectRelated
 
     #[Route('/{id}/view', name: 'rule_package_view')]
     #[Route('/{id}/view/filter/{filter}', name: 'rule_package_view_filtered')]
-    public function view(Request $request, RulePackage $rulePackage, $filter = ''): Response
+    public function view(RulePackage $rulePackage, $filter = ''): Response
     {
         $hasError = false;
         $errorMessage = '';
@@ -355,43 +353,53 @@ class RulePackageController extends AbstractController implements ProjectRelated
             $filteredType = $filter;
         }
 
-        $table = $this->dataTableFactory->create(['autoWidth' => true])
-            ->add('name', TextColumn::class, ['label' => 'rulePackage.view.list.fieldRules.name'])
-            ->add('type', TwigColumn::class, [
-                'label' => 'rulePackage.view.list.fieldRules.type',
-                'template' => 'project_related/rule_package/view/field_rule_list/_type.html.twig'
-            ])
-            ->add('numberOfRuleItems', TwigColumn::class, [
-                'label' => 'rulePackage.view.list.fieldRules.numberOfRuleItems',
-                'template' => 'project_related/rule_package/view/field_rule_list/_numberOfRuleItems.html.twig'
-            ])
-            ->add('spamRatingFactor', NumberColumn::class, ['label' => 'rulePackage.view.list.fieldRules.spamRatingFactor'])
-            ->add('actions', TwigColumn::class, [
-                'label' => 'rulePackage.view.list.fieldRules.actions',
-                'className' => 'buttons',
-                'template' => 'project_related/rule_package/view/field_rule_list/_actions.html.twig'
-            ])
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => RulePackageRuleCache::class,
-                'query' => function (QueryBuilder $builder) use ($rulePackage, $filteredType) {
-                    $builder
-                        ->select('e')
-                        ->from(RulePackageRuleCache::class, 'e')
-                        ->where('e.rulePackageCache = :rulePackageCache')
-                        ->setParameter('rulePackageCache', $rulePackage->getRulePackageCache());
+        $adapter = (new OrmAdapter($this->entityManager, RulePackageRuleCache::class))
+            ->setQueryCallback(function (QueryBuilder $qb) use ($rulePackage, $filteredType) {
+                $qb
+                    ->where('e.rulePackageCache = :rulePackageCache')
+                    ->setParameter('rulePackageCache', $rulePackage->getRulePackageCache())
+                ;
 
-                    if ($filteredType !== null) {
-                        $builder
-                            ->andWhere('e.type = :filteredType')
-                            ->setParameter('filteredType', $filteredType);
-                    }
-                },
-            ])
-            ->handleRequest($request);
+                if ($filteredType !== null) {
+                    $qb
+                        ->andWhere('e.type = :filteredType')
+                        ->setParameter('filteredType', $filteredType)
+                    ;
+                }
+            })
+        ;
 
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
+        $table = $this->factory->create($adapter)
+            ->addColumn(new Column('name', 'rulePackage.view.list.fieldRules.name'))
+            ->addColumn(new Column(
+                'type',
+                'rulePackage.view.list.fieldRules.type',
+                template: 'project_related/rule_package/view/field_rule_list/_type.html.twig',
+            ))
+            ->addColumn(new Column(
+                'numberOfItems',
+                'rulePackage.view.list.fieldRules.numberOfRuleItems',
+                template: 'project_related/rule_package/view/field_rule_list/_numberOfRuleItems.html.twig',
+                isNumeric: true,
+            ))
+            ->addColumn(new Column(
+                'spamRatingFactor',
+                'rulePackage.view.list.fieldRules.spamRatingFactor',
+                isNumeric: true,
+                decimals: 1,
+            ))
+            ->addColumn(new Column(
+                'actions',
+                'rulePackage.view.list.fieldRules.actions',
+                sortable: false,
+                mapped: false,
+                template: 'project_related/rule_package/view/field_rule_list/_actions.html.twig',
+                cellClass: 'collapsed-label-invisible action-buttons',
+            ))
+            ->setSortBy('name')
+        ;
+
+        $table->query();
 
         // Count the rule types
         $qb = $this->entityManager->createQueryBuilder();
@@ -410,7 +418,7 @@ class RulePackageController extends AbstractController implements ProjectRelated
             'rulePackage' => $rulePackage,
             'hasError' => $hasError,
             'errorMessage' => $errorMessage,
-            'datatable' => $table,
+            'table' => $table,
             'ruleTypes' => $this->ruleTypeManager->getRuleTypes(),
             'numberOfRulesByType' => $numberOfRulesByType,
             'filter' => $filter,
@@ -418,7 +426,7 @@ class RulePackageController extends AbstractController implements ProjectRelated
     }
 
     #[Route('/{id}/view/field-rule/{ruleUuid}', name: 'rule_package_view_field_rule')]
-    public function viewFieldRule(Request $request, RulePackage $rulePackage, string $ruleUuid): Response
+    public function viewFieldRule(RulePackage $rulePackage, string $ruleUuid): Response
     {
         $rulePackageRuleCacheRepository = $this->entityManager->getRepository(RulePackageRuleCache::class);
         $rulePackageRuleCache = $rulePackageRuleCacheRepository->findOneBy(['uuid' => $ruleUuid]);
@@ -427,36 +435,41 @@ class RulePackageController extends AbstractController implements ProjectRelated
             return $this->redirectToRoute('rule_package_view', ['_projectId' => $this->getActiveProject()->getId(), 'id' => $rulePackage->getId()]);
         }
 
-        $table = $this->dataTableFactory->create(['autoWidth' => true])
-            ->add('type', TwigColumn::class, [
-                'label' => 'rulePackage.view.list.fieldRuleItems.type',
-                'template' => 'project_related/rule_package/view/field_rule_item_list/_type.html.twig'
-            ])
-            ->add('value', TwigColumn::class, [
-                'label' => 'rulePackage.view.list.fieldRuleItems.value',
-                'template' => 'project_related/rule_package/view/field_rule_item_list/_value.html.twig'
-            ])
-            ->add('spamRatingFactor', NumberColumn::class, ['label' => 'rulePackage.view.list.fieldRuleItems.spamRatingFactor'])
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => RulePackageRuleItemCache::class,
-                'query' => function (QueryBuilder $builder) use ($rulePackageRuleCache) {
-                    $builder
-                        ->select('e')
-                        ->from(RulePackageRuleItemCache::class, 'e')
-                        ->where('e.rulePackageRuleCache = :rulePackageRuleCache')
-                        ->setParameter('rulePackageRuleCache', $rulePackageRuleCache);
-                },
-            ])
-            ->handleRequest($request);
+        $adapter = (new OrmAdapter($this->entityManager, RulePackageRuleItemCache::class))
+            ->setQueryCallback(function (QueryBuilder $qb) use ($rulePackageRuleCache) {
+                $qb
+                    ->where('e.rulePackageRuleCache = :rulePackageRuleCache')
+                    ->setParameter('rulePackageRuleCache', $rulePackageRuleCache)
+                ;
+            })
+        ;
 
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
+        $table = $this->factory->create($adapter)
+            ->addColumn(new Column(
+                'type',
+                'rulePackage.view.list.fieldRuleItems.type',
+                template: 'project_related/rule_package/view/field_rule_item_list/_type.html.twig'
+            ))
+            ->addColumn(new Column(
+                'value',
+                'rulePackage.view.list.fieldRuleItems.value',
+                template: 'project_related/rule_package/view/field_rule_item_list/_value.html.twig'
+            ))
+            ->addColumn(new Column(
+                'spamRatingFactor',
+                'rulePackage.view.list.fieldRuleItems.spamRatingFactor',
+                isNumeric: true,
+                decimals: 1,
+            ))
+            ->setSortBy('value')
+        ;
+
+        $table->query();
 
         return $this->render('project_related/rule_package/view_field_rule.html.twig', [
             'rulePackage' => $rulePackage,
             'rule' => $rulePackageRuleCache,
-            'datatable' => $table
+            'table' => $table
         ]);
     }
 }

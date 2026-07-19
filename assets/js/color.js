@@ -1,6 +1,9 @@
-const $ = require('jquery');
+/*const $ = require('jquery');
 const { normal } = require('color-blend');
-const tinycolor = require("tinycolor2");
+const tinycolor = require("tinycolor2");*/
+import jQuery from 'jquery';
+import { normal } from 'color-blend';
+import tinycolor from 'tinycolor2';
 
 const calculateTextScore = function (backgroundColor, foregroundColor) {
     return Math.round(tinycolor.readability(backgroundColor, foregroundColor) * 100) / 100;
@@ -84,13 +87,13 @@ const recalculateContrastRatioForGroup = function (groupEl)
 {
     let aaMin = 4.5;
     let aaaMin = 7.0;
-    if ($('input[name="design_settings_form[boxSize]"]:checked').val() === 'large') {
+    if (jQuery('input[name="design_settings_form[boxSize]"]:checked').val() === 'large') {
         aaMin = 3.0;
         aaaMin = 4.5;
     }
 
     let backgroundColor = getContrastValueColor(groupEl, 'background', 'rgb');
-    let bodyBackgroundColor = getSpectrumValue($('#page_body_backgroundColor'), 'rgb');
+    let bodyBackgroundColor = getSpectrumValue(jQuery('#page_body_backgroundColor'), 'rgb');
 
     if (bodyBackgroundColor === false) {
         bodyBackgroundColor = {r: 255, g: 255, b: 255, a: 1};
@@ -131,8 +134,8 @@ const recalculateContrastRatioForGroup = function (groupEl)
 
 const recalculateContrastRatioForAllGroups = function ()
 {
-    $('.contrast-ratio-group').each(function () {
-        recalculateContrastRatioForGroup($(this));
+    jQuery('.contrast-ratio-group').each(function () {
+        recalculateContrastRatioForGroup(jQuery(this));
     });
 };
 
@@ -203,16 +206,16 @@ const searchColorWithBestContrast = function (backgroundColor, targetColor, mode
     return adjustedColor;
 };
 
-$(document).ready(function () {
-    $('input.colorpicker').on('color-change', function () {
-        if ($(this).is('#page_body_backgroundColor')) {
+jQuery(document).ready(function () {
+    jQuery('input.colorpicker').on('color-change', function () {
+        if (jQuery(this).is('#page_body_backgroundColor')) {
             recalculateContrastRatioForAllGroups();
-        } else if ($(this).parents('.contrast-ratio-group').length > 0) {
-            recalculateContrastRatioForGroup($(this).parents('.contrast-ratio-group'));
+        } else if (jQuery(this).parents('.contrast-ratio-group').length > 0) {
+            recalculateContrastRatioForGroup(jQuery(this).parents('.contrast-ratio-group'));
         }
     });
 
-    $('input[name="design_settings_form[boxSize]"]').change(function () {
+    jQuery('input[name="design_settings_form[boxSize]"]').change(function () {
         recalculateContrastRatioForAllGroups();
     });
 

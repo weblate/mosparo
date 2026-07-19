@@ -141,6 +141,6 @@ $(document).ready(function () {
 
             searchProject();
             $('.project-dropdown-menu input').focus();
-        };
+        }
     });
 });

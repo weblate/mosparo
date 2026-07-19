@@ -106,20 +106,22 @@
 
         {% if hasError %}
             <div class="alert alert-danger">
-                {% if is_granted('ROLE_ADMIN') %}
-                    {{ 'rulePackage.message.errorWhileUpdating'|trans }}
-                    {{ errorMessage|trans }}
-                {% else %}
-                    {{ 'rulePackage.message.errorWhileUpdatingWithoutReason'|trans }}
-                {% endif %}
+                <div>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        {{ 'rulePackage.message.errorWhileUpdating'|trans }}
+                        {{ errorMessage|trans }}
+                    {% else %}
+                        {{ 'rulePackage.message.errorWhileUpdatingWithoutReason'|trans }}
+                    {% endif %}
+                </div>
             </div>
         {% endif %}
 
         {% if rulePackage.rulePackageCache %}
-            <div class="d-flex">
-                <h2 class="mt-3 mt-md-1">{{ 'rulePackage.view.includedRules.title'|trans }}</h2>
+            <div class="d-flex flex-column flex-md-row align-items-md-end mb-md-3">
+                <h2 class="mt-3 mt-md-1 mb-md-0">{{ 'rulePackage.view.includedRules.title'|trans }}</h2>
 
-                <div class="col-auto ms-auto">
+                <div class="col-auto ms-auto order-first order-md-last">
                     <div class="btn-list">
                         {% if canManage %}
                             <a href="{{ path('rule_package_update_cache', {'_projectId': rulePackage.project.id, 'id': rulePackage.id}) }}" class="btn btn-teal">
@@ -153,26 +155,24 @@
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-12">
-                    <div class="card">
-                        <div id="rule_package_rules">
-
-                        </div>
-                    </div>
+            <div class="row">
+                <div class="col">
+                    {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'rulePackagesRules'} %}
                 </div>
             </div>
         {% else %}
             {% if isManualFeed %}
                 <div class="alert alert-info p-5">
-                    <h4 class="alert-title">{{ 'rulePackage.view.details.importFirstTitle'|trans }}</h4>
+                    <div>
+                        <h4 class="alert-title">{{ 'rulePackage.view.details.importFirstTitle'|trans }}</h4>
 
-                    <p>{{ 'rulePackage.view.details.importFirst'|trans }}</p>
+                        <p>{{ 'rulePackage.view.details.importFirst'|trans }}</p>
 
-                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#import_modal">
-                        <i class="ti ti-stack-push"></i>
-                        {{ 'action.learnMore'|trans }}
-                    </button>
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#import_modal">
+                            <i class="ti ti-stack-push"></i>
+                            {{ 'action.learnMore'|trans }}
+                        </button>
+                    </div>
                 </div>
             {% else %}
                 <div class="alert alert-info">
@@ -220,23 +220,19 @@
 {% block javascripts %}
     {{ parent() }}
 
-    <!-- Insert this at the end of your body element, but before the closing tag -->
-    <script src="{{ asset('bundles/datatables/js/datatables.js')|add_path_prefix }}"></script>
     {% cspscript %}
         <script>
-            $(function() {
-                $('#rule_package_rules').initDataTables({{ datatable_settings(datatable) }}, {
-                    autoWidth: false,
-                    searching: false,
-                    info: false,
-                    columnDefs: [
-                        { width: "40%", targets: 0 },
-                        { width: "20%", targets: 1},
-                        { width: "15%", targets: 2},
-                        { width: "15%", targets: 3},
-                        { width: "1%", targets: 4 }
+            $(function () {
+                new GridTable(
+                    $('#rulePackagesRules'),
+                    [
+                        ['(width >= 992px)', '1fr min-content min-content min-content min-content'],
+                        ['(width >= 830px) and (width < 992px)', '1fr min-content min-content min-content'],
+                        ['(width >= 570px) and (width < 830px)', '1fr min-content min-content'],
+                        ['(width >= 450px) and (width < 570px)', '1fr min-content'],
+                        ['(width < 450px)', '1fr'],
                     ]
-                });
+                );
             });
         </script>
     {% endcspscript %}

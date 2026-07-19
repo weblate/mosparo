@@ -6,7 +6,6 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Kir\StringUtils\Matching\Wildcards\Pattern;
-use Mosparo\DataTable\MosparoDataTableFactory;
 use Mosparo\Entity\Rule;
 use Mosparo\Entity\RuleItem;
 use Mosparo\Form\RuleFormType;
@@ -14,10 +13,10 @@ use Mosparo\Helper\InterfaceHelper;
 use Mosparo\Rules\FieldRule\RuleTypeManager;
 use Mosparo\Rules\FieldRule\Type\RuleTypeInterface;
 use Mosparo\Rules\FieldRule\Type\UnicodeBlockRuleType;
+use Mosparo\UserInterface\GridTable\Adapter\OrmAdapter;
+use Mosparo\UserInterface\GridTable\Column;
+use Mosparo\UserInterface\GridTable\Factory;
 use Mosparo\Util\EnvironmentUtil;
-use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
-use Omines\DataTablesBundle\Column\TextColumn;
-use Omines\DataTablesBundle\Column\TwigColumn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -47,48 +46,48 @@ class FieldRuleController extends AbstractController implements ProjectRelatedIn
 
     #[Route('/', name: 'rules_field_rule_list')]
     #[Route('/filter/{filter}', name: 'rules_field_rule_list_filtered')]
-    public function index(Request $request, MosparoDataTableFactory $dataTableFactory, $filter = ''): Response
+    public function index(Factory $factory, $filter = ''): Response
     {
         $filteredType = null;
         if (in_array($filter, $this->ruleTypeManager->getRuleTypeKeys())) {
             $filteredType = $filter;
         }
 
-        $table = $dataTableFactory->create(['autoWidth' => true])
-            ->add('name', TextColumn::class, ['label' => 'rules.fieldRule.list.name'])
-            ->add('type', TwigColumn::class, [
-                'label' => 'rules.fieldRule.list.type',
-                'template' => 'project_related/rules/field_rule/list/_rule_type.html.twig'
-            ])
-            ->add('status', TwigColumn::class, [
-                'label' => 'rules.fieldRule.list.status',
-                'template' => 'project_related/rules/field_rule/list/_status.html.twig'
-            ])
-            ->add('actions', TwigColumn::class, [
-                'label' => 'rules.fieldRule.list.actions',
-                'className' => 'buttons',
-                'template' => 'project_related/rules/field_rule/list/_actions.html.twig'
-            ])
-            ->addOrderBy('name')
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => Rule::class,
-                'query' => function (QueryBuilder $builder) use ($filteredType) {
-                    $builder
-                        ->select('e')
-                        ->from(Rule::class, 'e');
+        $adapter = (new OrmAdapter($this->entityManager, Rule::class))
+            ->setQueryCallback(function (QueryBuilder $qb) use ($filteredType) {
+                if ($filteredType !== null) {
+                    $qb
+                        ->andWhere('e.type = :filteredType')
+                        ->setParameter('filteredType', $filteredType)
+                    ;
+                }
+            })
+        ;
 
-                    if ($filteredType !== null) {
-                        $builder
-                            ->andWhere('e.type = :filteredType')
-                            ->setParameter('filteredType', $filteredType);
-                    }
-                },
-            ])
-            ->handleRequest($request);
+        $table = $factory->create($adapter)
+            ->addColumn(new Column('name', 'rules.fieldRule.list.name'))
+            ->addColumn(new Column(
+                'type',
+                'rules.fieldRule.list.type',
+                template: 'project_related/rules/field_rule/list/_rule_type.html.twig',
+            ))
+            ->addColumn(new Column(
+                'status',
+                'rules.fieldRule.list.status',
+                template: 'project_related/rules/field_rule/list/_status.html.twig',
+            ))
+            ->addColumn(new Column(
+                'actions',
+                'rules.fieldRule.list.actions',
+                sortable: false,
+                mapped: false,
+                template: 'project_related/rules/field_rule/list/_actions.html.twig',
+                cellClass: 'collapsed-label-invisible action-buttons',
+            ))
+            ->setSortBy('name')
+        ;
 
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
+        $table->query();
 
         // Count the rule types
         $qb = $this->entityManager->createQueryBuilder();
@@ -102,7 +101,7 @@ class FieldRuleController extends AbstractController implements ProjectRelatedIn
         }
 
         return $this->render('project_related/rules/field_rule/list.html.twig', [
-            'datatable' => $table,
+            'table' => $table,
             'ruleTypes' => $this->ruleTypeManager->getRuleTypes(),
             'numberOfRulesByType' => $numberOfRulesByType,
             'filter' => $filter

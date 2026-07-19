@@ -1,0 +1,5 @@
+{% if not item.rulePackageCache is null %}
+    {{ item.rulePackageCache.updatedAt|date }}
+{% else %}
+    -
+{% endif %}

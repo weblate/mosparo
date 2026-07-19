@@ -31,12 +31,14 @@
 
                         {% if hasError %}
                             <div class="alert alert-danger">
-                                {% if is_granted('ROLE_ADMIN') %}
-                                    {{ 'rulePackage.message.errorWhileUpdating'|trans }}
-                                    {{ errorMessage|trans }}
-                                {% else %}
-                                    {{ 'rulePackage.message.errorWhileUpdatingWithoutReason'|trans }}
-                                {% endif %}
+                                <div>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        {{ 'rulePackage.message.errorWhileUpdating'|trans }}
+                                        {{ errorMessage|trans }}
+                                    {% else %}
+                                        {{ 'rulePackage.message.errorWhileUpdatingWithoutReason'|trans }}
+                                    {% endif %}
+                                </div>
                             </div>
                         {% endif %}
 

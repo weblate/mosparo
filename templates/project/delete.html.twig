@@ -24,21 +24,25 @@
 
                             {% if hasRulePackages %}
                                 <div class="alert alert-danger">
-                                    <p>
-                                        {{ 'project.delete.deleteRulePackages.intro1'|trans }}
-                                    </p>
-                                    <p>
-                                        {{ 'project.delete.deleteRulePackages.intro2'|trans }}
-                                    </p>
+                                    <div>
+                                        <p>
+                                            {{ 'project.delete.deleteRulePackages.intro1'|trans }}
+                                        </p>
+                                        <p>
+                                            {{ 'project.delete.deleteRulePackages.intro2'|trans }}
+                                        </p>
+                                    </div>
                                 </div>
                             {% else %}
                                 <div class="alert alert-important alert-danger">
-                                    <p>
-                                        {{ 'project.delete.confirm'|trans({ '%projectName%': '<strong>' ~ project.name|escape ~ '</strong>' })|raw }}
-                                    </p>
-                                    <p>
-                                        {{ 'general.infoUndo'|trans }}
-                                    </p>
+                                    <div>
+                                        <p>
+                                            {{ 'project.delete.confirm'|trans({ '%projectName%': '<strong>' ~ project.name|escape ~ '</strong>' })|raw }}
+                                        </p>
+                                        <p>
+                                            {{ 'general.infoUndo'|trans }}
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <div class="alert alert-danger">

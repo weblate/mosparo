@@ -189,6 +189,10 @@ pre {
     flex: 1;
 }
 
+.alert p:last-child {
+    margin-bottom: 0;
+}
+
 [data-bs-theme=dark],
 body[data-bs-theme=dark] [data-bs-theme=light] {
     pre {

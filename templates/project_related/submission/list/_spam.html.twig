@@ -3,7 +3,7 @@
 {% if value %}
     <span class="text-danger"><strong>{{ 'state.yes'|trans }}</strong></span>
 {% else %}
-    {% if not value and row.spamRating > row.spamDetectionRating %}
+    {% if not value and item.spamRating > item.spamDetectionRating %}
         <span class="text-blue"><strong>{{ 'state.ignored'|trans }}</strong></span>
     {% else %}
         <span class="text-success"><strong>{{ 'state.no'|trans }}</strong></span>

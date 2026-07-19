@@ -22,15 +22,17 @@
                             <h2 class="card-title text-center mb-4">{{ 'settings.translation.delete.title'|trans({ '%translationName%': translation.locale }) }}</h2>
 
                             <div class="alert alert-important alert-danger">
-                                <p>
-                                    {{ 'settings.translation.delete.confirm'|trans|raw }}
-                                </p>
-                                <p>
-                                    {{ translation.text }}
-                                </p>
-                                <p>
-                                    {{ 'general.infoUndo'|trans }}
-                                </p>
+                                <div>
+                                    <p>
+                                        {{ 'settings.translation.delete.confirm'|trans|raw }}
+                                    </p>
+                                    <p>
+                                        {{ translation.text }}
+                                    </p>
+                                    <p>
+                                        {{ 'general.infoUndo'|trans }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

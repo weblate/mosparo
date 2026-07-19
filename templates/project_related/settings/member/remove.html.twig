@@ -22,12 +22,14 @@
                             <h2 class="card-title text-center mb-4">{{ 'settings.projectMember.delete.title'|trans({ '%projectMemberName%': projectMember.user.email }) }}</h2>
 
                             <div class="alert alert-important alert-danger">
-                                <p>
-                                    {{ 'settings.projectMember.delete.confirm'|trans({ '%projectMemberName%': '<strong>' ~ projectMember.user.email|escape ~ '</strong>' })|raw }}
-                                </p>
-                                <p>
-                                    {{ 'general.infoUndo'|trans }}
-                                </p>
+                                <div>
+                                    <p>
+                                        {{ 'settings.projectMember.delete.confirm'|trans({ '%projectMemberName%': '<strong>' ~ projectMember.user.email|escape ~ '</strong>' })|raw }}
+                                    </p>
+                                    <p>
+                                        {{ 'general.infoUndo'|trans }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

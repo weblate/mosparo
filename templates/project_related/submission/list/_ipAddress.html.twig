@@ -1,5 +1,5 @@
 <div class="client-information">
-    {% for field in row.data.client %}
+    {% for field in item.data.client %}
         {% if field.name == 'ipAddress' %}
             <code class="d-inline-block information-part ip-address">{{ field.value }}</code>
         {% elseif field.name == 'asNumber' and field.value != '' %}

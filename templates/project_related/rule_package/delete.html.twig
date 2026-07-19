@@ -22,12 +22,14 @@
                             <h2 class="card-title text-center mb-4">{{ 'rulePackage.delete.title'|trans({ '%rulePackageName%': rulePackage.name}) }}</h2>
 
                             <div class="alert alert-important alert-danger">
-                                <p>
-                                    {{ 'rulePackage.delete.confirm'|trans({ '%rulePackageName%': '<strong>' ~ rulePackage.name|raw ~ '</strong>' })|raw }}
-                                </p>
-                                <p>
-                                    {{ 'general.infoUndo'|trans }}
-                                </p>
+                                <div>
+                                    <p>
+                                        {{ 'rulePackage.delete.confirm'|trans({ '%rulePackageName%': '<strong>' ~ rulePackage.name|raw ~ '</strong>' })|raw }}
+                                    </p>
+                                    <p>
+                                        {{ 'general.infoUndo'|trans }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

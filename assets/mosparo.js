@@ -10,27 +10,24 @@ import './scss/mosparo.scss';
 
 import '@tabler/core';
 
-const $ = require('jquery');
-global.$ = global.jQuery = $;
+import jQuery from 'jquery';
+window.$ = window.jQuery = jQuery;
 
-import 'spectrum-colorpicker2';
+import spectrum from 'spectrum-colorpicker2';
+window.spectrum = spectrum;
 
-const apexCharts = require('apexcharts');
-global.ApexCharts = apexCharts;
+import apexcharts from 'apexcharts';
+window.ApexCharts = apexcharts;
 
-const dt = require('datatables.net');
-const dtR = require('datatables.net-responsive');
+import { TabulatorFull } from 'tabulator-tables';
+window.Tabulator = TabulatorFull;
 
-const tabulator = require('tabulator-tables');
-global.Tabulator = tabulator;
-
-const papa = require('papaparse');
-global.papa = papa;
+import papa from 'papaparse';
+window.papa = papa;
 
 import './js/ui.js';
 import './js/form.js';
 import './js/color.js';
-import './js/table.js';
+import './js/grid-table.js';
 import './js/project.js';
-import './js/tooltip.js';
 import './js/chart.js';

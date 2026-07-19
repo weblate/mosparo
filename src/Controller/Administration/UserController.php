@@ -3,16 +3,14 @@
 namespace Mosparo\Controller\Administration;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\QueryBuilder;
-use Mosparo\DataTable\MosparoDataTableFactory;
 use Mosparo\Entity\ProjectMember;
 use Mosparo\Entity\User;
 use Mosparo\Form\PasswordFormType;
 use Mosparo\Helper\PasswordHelper;
+use Mosparo\UserInterface\GridTable\Adapter\OrmAdapter;
+use Mosparo\UserInterface\GridTable\Column;
+use Mosparo\UserInterface\GridTable\Factory;
 use Mosparo\Util\TokenGenerator;
-use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
-use Omines\DataTablesBundle\Column\TextColumn;
-use Omines\DataTablesBundle\Column\TwigColumn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -29,46 +27,49 @@ use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 #[Route('/administration/users')]
 class UserController extends AbstractController
 {
+    protected EntityManagerInterface $entityManager;
+
     protected UserPasswordHasherInterface $userPasswordHasher;
 
     protected TranslatorInterface $translator;
 
-    public function __construct(UserPasswordHasherInterface $userPasswordHasher, TranslatorInterface $translator)
+    public function __construct(EntityManagerInterface $entityManager, UserPasswordHasherInterface $userPasswordHasher, TranslatorInterface $translator)
     {
+        $this->entityManager = $entityManager;
         $this->userPasswordHasher = $userPasswordHasher;
         $this->translator = $translator;
     }
 
     #[Route('/', name: 'administration_user_list')]
-    public function index(Request $request, MosparoDataTableFactory $dataTableFactory): Response
+    public function index(Factory $factory): Response
     {
-        $table = $dataTableFactory->create(['autoWidth' => true])
-            ->add('email', TextColumn::class, ['label' => 'administration.user.list.user'])
-            ->add('roles', TwigColumn::class, [
-                'label' => 'administration.user.list.roles',
-                'template' => 'administration/user/list/_roles.html.twig'
-            ])
-            ->add('actions', TwigColumn::class, [
-                'label' => 'administration.user.list.actions',
-                'className' => 'buttons',
-                'template' => 'administration/user/list/_actions.html.twig'
-            ])
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => User::class,
-                'query' => function (QueryBuilder $builder) {
-                    $builder
-                        ->select('e')
-                        ->from(User::class, 'e');
-                },
-            ])
-            ->handleRequest($request);
+        $adapter = (new OrmAdapter($this->entityManager, User::class));
 
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
+        $table = $factory->create($adapter)
+            ->addColumn(new Column(
+                'email',
+                'administration.user.list.user',
+            ))
+            ->addColumn(new Column(
+                'roles',
+                'administration.user.list.roles',
+                template: 'administration/user/list/_roles.html.twig',
+            ))
+            ->addColumn(new Column(
+                'actions',
+                'administration.user.list.actions',
+                sortable: false,
+                mapped: false,
+                template: 'administration/user/list/_actions.html.twig',
+                cellClass: 'collapsed-label-invisible action-buttons',
+            ))
+            ->setSortBy('email')
+        ;
+
+        $table->query();
 
         return $this->render('administration/user/list.html.twig', [
-            'datatable' => $table
+            'table' => $table
         ]);
     }
 

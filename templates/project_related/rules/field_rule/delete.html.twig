@@ -22,12 +22,14 @@
                             <h2 class="card-title text-center mb-4">{{ 'rules.fieldRule.delete.title'|trans({ '%ruleName%': rule.name }) }}</h2>
 
                             <div class="alert alert-important alert-danger">
-                                <p>
-                                    {{ 'rules.fieldRule.delete.confirm'|trans({ '%ruleName%': '<strong>' ~ rule.name|escape ~ '</strong>' })|raw }}
-                                </p>
-                                <p>
-                                    {{ 'general.infoUndo'|trans }}
-                                </p>
+                                <div>
+                                    <p>
+                                        {{ 'rules.fieldRule.delete.confirm'|trans({ '%ruleName%': '<strong>' ~ rule.name|escape ~ '</strong>' })|raw }}
+                                    </p>
+                                    <p>
+                                        {{ 'general.infoUndo'|trans }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

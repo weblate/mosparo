@@ -1560,20 +1560,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     throttle_limit?: int|Param, // Another password reset cannot be made faster than this throttle time in seconds. // Default: 3600
  *     enable_garbage_collection?: bool|Param, // Enable/Disable automatic garbage collection. // Default: true
  * }
- * @psalm-type DatatablesConfig = array{
- *     language_from_cdn?: bool|Param, // Load i18n data from DataTables CDN or locally // Default: true
- *     persist_state?: "none"|"query"|"fragment"|"local"|"session"|Param, // Where to persist the current table state automatically // Default: "fragment"
- *     method?: "GET"|"POST"|Param, // Default HTTP method to be used for callbacks // Default: "POST"
- *     options?: array<string, mixed>,
- *     renderer?: scalar|Param|null, // Default service used to render templates, built-in TwigRenderer uses global Twig environment // Default: "Omines\\DataTablesBundle\\Twig\\TwigRenderer"
- *     template?: scalar|Param|null, // Default template to be used for DataTables HTML // Default: "@DataTables/datatable_html.html.twig"
- *     template_parameters?: array{ // Default parameters to be passed to the template
- *         className?: scalar|Param|null, // Default class attribute to apply to the root table elements // Default: "table table-bordered"
- *         columnFilter?: "thead"|"tfoot"|"both"|Param|null, // If and where to enable the DataTables Filter module // Default: null
- *         ...<string, mixed>
- *     },
- *     translation_domain?: scalar|Param|null, // Default translation domain to be used // Default: "messages"
- * }
  * @psalm-type SchebTwoFactorConfig = array{
  *     persister?: scalar|Param|null, // Default: "scheb_two_factor.persister.doctrine"
  *     model_manager_name?: scalar|Param|null, // Default: null
@@ -1801,7 +1787,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     twig_extra?: TwigExtraConfig,
  *     webpack_encore?: WebpackEncoreConfig,
  *     symfonycasts_reset_password?: SymfonycastsResetPasswordConfig,
- *     datatables?: DatatablesConfig,
  *     scheb_two_factor?: SchebTwoFactorConfig,
  *     json_request?: JsonRequestConfig,
  *     nelmio_security?: NelmioSecurityConfig,
@@ -1821,7 +1806,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_extra?: TwigExtraConfig,
  *         webpack_encore?: WebpackEncoreConfig,
  *         symfonycasts_reset_password?: SymfonycastsResetPasswordConfig,
- *         datatables?: DatatablesConfig,
  *         scheb_two_factor?: SchebTwoFactorConfig,
  *         json_request?: JsonRequestConfig,
  *         nelmio_security?: NelmioSecurityConfig,
@@ -1839,7 +1823,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_extra?: TwigExtraConfig,
  *         webpack_encore?: WebpackEncoreConfig,
  *         symfonycasts_reset_password?: SymfonycastsResetPasswordConfig,
- *         datatables?: DatatablesConfig,
  *         scheb_two_factor?: SchebTwoFactorConfig,
  *         json_request?: JsonRequestConfig,
  *         nelmio_security?: NelmioSecurityConfig,
@@ -1858,7 +1841,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_extra?: TwigExtraConfig,
  *         webpack_encore?: WebpackEncoreConfig,
  *         symfonycasts_reset_password?: SymfonycastsResetPasswordConfig,
- *         datatables?: DatatablesConfig,
  *         scheb_two_factor?: SchebTwoFactorConfig,
  *         json_request?: JsonRequestConfig,
  *         nelmio_security?: NelmioSecurityConfig,

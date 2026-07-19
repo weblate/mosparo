@@ -142,13 +142,9 @@
 
         <h2 class="mt-3 mt-md-1">{{ 'rulePackage.view.fieldRule.items.title'|trans }}</h2>
 
-        <div class="row mb-3">
-            <div class="col-12">
-                <div class="card">
-                    <div id="rule_package_rule_items">
-
-                    </div>
-                </div>
+        <div class="row">
+            <div class="col">
+                {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'rulePackagesRuleItems'} %}
             </div>
         </div>
 
@@ -166,21 +162,18 @@
 {% block javascripts %}
     {{ parent() }}
 
-    <!-- Insert this at the end of your body element, but before the closing tag -->
-    <script src="{{ asset('bundles/datatables/js/datatables.js')|add_path_prefix }}"></script>
     {% cspscript %}
         <script>
-            $(function() {
-                $('#rule_package_rule_items').initDataTables({{ datatable_settings(datatable) }}, {
-                    autoWidth: false,
-                    searching: false,
-                    info: false,
-                    columnDefs: [
-                        { width: "20%", targets: 0 },
-                        { width: "70%", targets: 1},
-                        { width: "10%", targets: 2},
+            $(function () {
+                new GridTable(
+                    $('#rulePackagesRuleItems'),
+                    [
+                        ['(width >= 830px)', '20% 1fr min-content'],
+                        ['(width >= 570px) and (width < 830px)', 'min-content 1fr min-content'],
+                        ['(width >= 450px) and (width < 570px)', 'min-content 1fr'],
+                        ['(width < 450px)', '1fr'],
                     ]
-                });
+                );
             });
         </script>
     {% endcspscript %}

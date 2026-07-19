@@ -42,12 +42,14 @@
         {{ form_row(form.password) }}
 
         <div class="alert alert-info d-none" id="alert_mysql_encryption">
-            <p>{{ 'setup.database.mysqlEncryption'|trans }}</p>
+            <div>
+                <p>{{ 'setup.database.mysqlEncryption'|trans }}</p>
 
-            <a href="https://documentation.mosparo.io/docs/installation/configure/environment_variables#general-variables" class="btn btn-outline-info w-100" target="_blank">
-                {{ 'action.moreInformation'|trans }}
-                <i class="ti ti-external-link ti-icon-right"></i>
-            </a>
+                <a href="https://documentation.mosparo.io/docs/installation/configure/environment_variables#general-variables" class="btn btn-outline-info w-100" target="_blank">
+                    {{ 'action.moreInformation'|trans }}
+                    <i class="ti ti-external-link ti-icon-right"></i>
+                </a>
+            </div>
         </div>
 
         <div class="form-footer">

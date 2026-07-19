@@ -14,12 +14,11 @@ $accordion-button-active-icon-dark: url('/assets/images/ui/tabler.svg#accordion-
 $badge-color: #ffffff;
 
 @import '~@tabler/core';
-@import '~@tabler/icons-webfont/dist/tabler-icons-outline.scss';
+@import '~@tabler/icons-webfont/dist/tabler-icons.scss';
 
-@import '~datatables.net-responsive-bs5';
 @import 'spectrum-colorpicker2/dist/spectrum.css';
 
-@import '~tabulator-tables/dist/css/tabulator_bootstrap5.min.css';
+@import 'tabulator-tables/dist/css/tabulator_bootstrap5.min.css';
 
 /* Mosparo Core */
 @import 'core/base.scss';
@@ -35,9 +34,9 @@ $badge-color: #ffffff;
 @import 'core/update.scss';
 @import 'core/import.scss';
 @import 'core/ui.scss';
+@import 'core/grid-table';
 
 /* Plugins */
-@import 'plugins/datatable.scss';
 @import 'plugins/spectrum.scss';
 @import 'plugins/tabulator.scss';
 

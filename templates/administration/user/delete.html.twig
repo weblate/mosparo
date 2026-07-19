@@ -22,12 +22,14 @@
                             <h2 class="card-title text-center mb-4">{{ 'administration.user.delete.title'|trans({ '%email%': user.email }) }}</h2>
 
                             <div class="alert alert-important alert-danger">
-                                <p>
-                                    {{ 'administration.user.delete.confirm'|trans({ '%email%': '<strong>' ~ user.email|escape ~ '</strong>' })|raw }}
-                                </p>
-                                <p>
-                                    {{ 'general.infoUndo'|trans }}
-                                </p>
+                                <div>
+                                    <p>
+                                        {{ 'administration.user.delete.confirm'|trans({ '%email%': '<strong>' ~ user.email|escape ~ '</strong>' })|raw }}
+                                    </p>
+                                    <p>
+                                        {{ 'general.infoUndo'|trans }}
+                                    </p>
+                                </div>
                             </div>
 
                             {% if app.user == user %}

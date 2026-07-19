@@ -4,7 +4,6 @@ namespace Mosparo\Controller\ProjectRelated;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
-use Mosparo\DataTable\MosparoDataTableFactory;
 use Mosparo\Entity\ProjectMember;
 use Mosparo\Entity\SecurityGuideline;
 use Mosparo\Entity\Translation;
@@ -18,12 +17,10 @@ use Mosparo\Form\SecuritySettingsFormType;
 use Mosparo\Helper\DesignHelper;
 use Mosparo\Helper\GeoIp2Helper;
 use Mosparo\Helper\ProjectGroupHelper;
+use Mosparo\UserInterface\GridTable\Adapter\OrmAdapter;
+use Mosparo\UserInterface\GridTable\Column;
+use Mosparo\UserInterface\GridTable\Factory;
 use Mosparo\Util\TokenGenerator;
-use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
-use Omines\DataTablesBundle\Column\NumberColumn;
-use Omines\DataTablesBundle\Column\TextColumn;
-use Omines\DataTablesBundle\Column\TwigColumn;
-use Omines\DataTablesBundle\DataTable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -39,10 +36,16 @@ class SettingsController extends AbstractController implements ProjectRelatedInt
 {
     use ProjectRelatedTrait;
 
+    protected EntityManagerInterface $entityManager;
+
+    protected Factory $factory;
+
     protected TranslatorInterface $translator;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(EntityManagerInterface $entityManager, Factory $factory, TranslatorInterface $translator)
     {
+        $this->entityManager = $entityManager;
+        $this->factory = $factory;
         $this->translator = $translator;
     }
 
@@ -112,40 +115,49 @@ class SettingsController extends AbstractController implements ProjectRelatedInt
     }
 
     #[Route('/members', name: 'settings_member_list')]
-    public function memberList(Request $request, MosparoDataTableFactory $dataTableFactory): Response
+    public function memberList(): Response
     {
         $project = $this->getActiveProject();
 
-        $table = $dataTableFactory->create(['autoWidth' => true])
-            ->add('user', TextColumn::class, ['label' => 'settings.projectMember.list.user', 'propertyPath' => 'user.email'])
-            ->add('role', TwigColumn::class, [
-                'label' => 'settings.projectMember.list.role',
-                'template' => 'project_related/settings/member/list/_role.html.twig'
-            ])
-            ->add('actions', TwigColumn::class, [
-                'label' => 'settings.projectMember.list.actions',
-                'className' => 'buttons',
-                'template' => 'project_related/settings/member/list/_actions.html.twig'
-            ])
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => ProjectMember::class,
-                'query' => function (QueryBuilder $builder) use ($project) {
-                    $builder
-                        ->select('e')
-                        ->from(ProjectMember::class, 'e')
-                        ->where('e.project = :project')
-                        ->setParameter('project', $project);
-                },
-            ])
-            ->handleRequest($request);
+        $adapter = (new OrmAdapter($this->entityManager, ProjectMember::class))
+            ->setQueryCallback(function (QueryBuilder $qb) use ($project) {
+                $qb
+                    ->addSelect('u')
+                    ->innerJoin('e.user', 'u')
+                    ->where('e.project = :project')
+                    ->setParameter('project', $project)
+                ;
+            })
+        ;
 
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
+        $table = $this->factory->create($adapter)
+            ->addColumn(new Column(
+                'u.email',
+                'settings.projectMember.list.user',
+                mapped: false,
+                template: 'project_related/settings/member/list/_user.html.twig',
+            ))
+            ->addColumn(new Column(
+                'role',
+                'settings.projectMember.list.role',
+                template: 'project_related/settings/member/list/_role.html.twig',
+            ))
+            ->addColumn(new Column(
+                'actions',
+                'settings.projectMember.list.actions',
+                sortable: false,
+                mapped: false,
+                template: 'project_related/settings/member/list/_actions.html.twig',
+                cellClass: 'collapsed-label-invisible action-buttons',
+            ))
+            ->setSortBy('u.email')
+        ;
+
+        $table->query();
 
         return $this->render('project_related/settings/member/list.html.twig', [
             'project' => $project,
-            'datatable' => $table
+            'table' => $table
         ]);
     }
 
@@ -298,45 +310,50 @@ class SettingsController extends AbstractController implements ProjectRelatedInt
     }
 
     #[Route('/security', name: 'settings_security')]
-    public function security(Request $request, MosparoDataTableFactory $dataTableFactory): Response
+    public function security(): Response
     {
         $project = $this->getActiveProject();
 
-        $table = $dataTableFactory->create(['autoWidth' => true])
-            ->add('name', TextColumn::class, ['label' => 'settings.security.guideline.list.name'])
-            ->add('priority', NumberColumn::class, [
-                'label' => 'settings.security.guideline.list.priority',
-            ])
-            ->add('actions', TwigColumn::class, [
-                'label' => 'settings.security.guideline.list.actions',
-                'className' => 'buttons',
-                'template' => 'project_related/settings/security/list/_actions.html.twig'
-            ])
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => SecurityGuideline::class,
-                'query' => function (QueryBuilder $builder) use ($project) {
-                    $builder
-                        ->select('e')
-                        ->from(SecurityGuideline::class, 'e')
-                        ->where('e.project = :project')
-                        ->setParameter('project', $project);
-                },
-            ])
-            ->addOrderBy('priority', DataTable::SORT_DESCENDING)
-            ->handleRequest($request);
+        $adapter = (new OrmAdapter($this->entityManager, SecurityGuideline::class))
+            ->setQueryCallback(function (QueryBuilder $qb) use ($project) {
+                $qb
+                    ->where('e.project = :project')
+                    ->setParameter('project', $project)
+                ;
+            })
+        ;
 
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
+        $table = $this->factory->create($adapter)
+            ->addColumn(new Column(
+                'name',
+                'settings.security.guideline.list.name',
+            ))
+            ->addColumn(new Column(
+                'priority',
+                'settings.security.guideline.list.priority',
+                isNumeric: true,
+            ))
+            ->addColumn(new Column(
+                'actions',
+                'settings.security.guideline.list.actions',
+                sortable: false,
+                mapped: false,
+                template: 'project_related/settings/security/list/_actions.html.twig',
+                cellClass: 'collapsed-label-invisible action-buttons',
+            ))
+            ->setSortBy('priority', 'DESC')
+        ;
+
+        $table->query();
 
         return $this->render('project_related/settings/security/security.html.twig', [
             'project' => $project,
-            'datatable' => $table
+            'table' => $table
         ]);
     }
 
     #[Route('/security/edit-general', name: 'settings_security_edit_general')]
-    public function securityEditGeneralForm(Request $request, EntityManagerInterface $entityManager, SecurityGuideline $securityGuideline = null): Response
+    public function securityEditGeneralForm(Request $request, EntityManagerInterface $entityManager): Response
     {
         $project = $this->getActiveProject();
         $config = $project->getConfigValues();
@@ -511,43 +528,49 @@ class SettingsController extends AbstractController implements ProjectRelatedInt
     }
 
     #[Route('/translations', name: 'settings_translation_list')]
-    public function translationList(Request $request, MosparoDataTableFactory $dataTableFactory): Response
+    public function translationList(): Response
     {
         $project = $this->getActiveProject();
 
-        $table = $dataTableFactory->create(['autoWidth' => true])
-            ->add('locale', TextColumn::class, ['label' => 'settings.translation.list.locale'])
-            ->add('translationKey', TwigColumn::class, [
-                'label' => 'settings.translation.list.translationKey',
-                'template' => 'project_related/settings/translation/list/_translationKey.html.twig',
-            ])
-            ->add('text', TextColumn::class, ['label' => 'settings.translation.list.text'])
-            ->add('actions', TwigColumn::class, [
-                'label' => 'settings.translation.list.actions',
-                'className' => 'buttons',
-                'template' => 'project_related/settings/translation/list/_actions.html.twig'
-            ])
-            ->createAdapter(ORMAdapter::class, [
-                'entity' => Translation::class,
-                'query' => function (QueryBuilder $builder) use ($project) {
-                    $builder
-                        ->select('e')
-                        ->from(Translation::class, 'e')
-                        ->where('e.project = :project')
-                        ->setParameter('project', $project);
-                },
-            ])
-            ->addOrderBy('locale')
-            ->addOrderBy('translationKey')
-            ->handleRequest($request);
+        $adapter = (new OrmAdapter($this->entityManager, Translation::class))
+            ->setQueryCallback(function (QueryBuilder $qb) use ($project) {
+                $qb
+                    ->where('e.project = :project')
+                    ->setParameter('project', $project)
+                ;
+            })
+        ;
 
-        if ($table->isCallback()) {
-            return $table->getResponse();
-        }
+        $table = $this->factory->create($adapter)
+            ->addColumn(new Column(
+                'locale',
+                'settings.translation.list.locale',
+            ))
+            ->addColumn(new Column(
+                'translationKey',
+                'settings.translation.list.translationKey',
+                template: 'project_related/settings/translation/list/_translationKey.html.twig',
+            ))
+            ->addColumn(new Column(
+                'text',
+                'settings.translation.list.text',
+            ))
+            ->addColumn(new Column(
+                'actions',
+                'settings.translation.list.actions',
+                sortable: false,
+                mapped: false,
+                template: 'project_related/settings/translation/list/_actions.html.twig',
+                cellClass: 'collapsed-label-invisible action-buttons',
+            ))
+            ->setSortBy('locale', 'DESC')
+        ;
+
+        $table->query();
 
         return $this->render('project_related/settings/translation/list.html.twig', [
             'project' => $project,
-            'datatable' => $table
+            'table' => $table
         ]);
     }
 

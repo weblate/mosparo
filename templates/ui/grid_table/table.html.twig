@@ -1,0 +1,166 @@
+{% trans_default_domain 'mosparo' %}
+
+{% set route = app.request.attributes.get('_route') %}
+{% set routeParams = app.request.attributes.get('_route_params')|merge(app.request.query) %}
+
+{% if identifier is defined %}
+    {% cspstyle %}
+        <style>
+            #{{ identifier }} { --grid-table-max-columns: {{ table.columns|length }}; }
+        </style>
+    {% endcspstyle %}
+{% endif %}
+
+<div class="grid-table loading" {% if identifier is defined %}id="{{ identifier }}"{% endif %}>
+    <div class="grid-table-header">
+        {% if table.hasHeaderGroups %}
+            <div class="grid-table-row header-groups-row">
+                {% set lastHeaderGroup = null %}
+                {% for column in table.columns %}
+                    {% if column.headerGroup and column.headerGroup != lastHeaderGroup %}
+                        <div class="grid-table-cell">
+                            {{ column.headerGroup|trans }}
+                            {% set lastHeaderGroup = column.headerGroup %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="grid-table-row">
+            {% for column in table.columns %}
+                <div class="grid-table-cell {{ column.cellClass ?? '' }} {% if column.sortable %}sortable{% endif %} {% if column.numeric %}numeric{% endif %}">
+                    {% if column.sortable %}
+                        {% set columnSortDir = 'ASC' %}
+                        {% if (table.sortByField == column.field) %}
+                            {% set columnSortDir = (table.sortByDirection|upper == 'ASC' or table.sortByDirection == null) ? 'DESC' : 'ASC' %}
+                        {% endif %}
+                        <a href="{{ path(route, routeParams|merge({'sortBy': column.field, 'sortDir': columnSortDir})) }}">
+                    {% endif %}
+                        {{ column.label|trans }}
+
+                        {% if column.sortable %}
+                            {% if table.sortByField == column.field %}
+                                {% if table.sortByDirection|upper == 'ASC' or table.sortByDirection == null %}
+                                    <i class="ti ti-chevron-up"></i>
+                                {% elseif table.sortByDirection|upper == 'DESC' %}
+                                    <i class="ti ti-chevron-down"></i>
+                                {% endif %}
+                            {% else %}
+                                <i class="ti ti-selector"></i>
+                            {% endif %}
+                        {% endif %}
+                    {% if column.sortable %}
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="grid-table-body">
+        {% for item in table.items %}
+            <div class="grid-table-row">
+                {% for column in table.columns %}
+                    {% set value = null %}
+                    {% if column.mapped %}
+                        {% set value = item.(column.field) %}
+                    {% endif %}
+
+                    <div class="grid-table-cell {{ column.cellClass ?? '' }} {% if column.numeric %}numeric{% endif %}">
+                        {% if loop.first %}
+                            <div class="grid-table-button">
+                                <button class="btn btn-icon-only">
+                                    <i class="ti ti-plus"></i>
+                                </button>
+                            </div>
+                        {% endif %}
+
+                        <div class="label">{{ column.label|trans }}</div>
+                        <div class="value">
+                            {% if column.template %}
+                                {% include(column.template) with {'value': value, 'column': column, 'item': item, 'table': table} %}
+                            {% else %}
+                                {% if column.numeric and column.decimals > 0 %}
+                                    {{ value|format_number({min_fraction_digit: column.decimals}) }}
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="grid-table-empty">
+                {{ 'gridTable.noItemsAvailable'|trans }}
+            </div>
+        {% endfor %}
+    </div>
+    {% if table.items|length %}
+        <div class="grid-table-footer">
+            <div class="grid-table-size">
+                {% if table.pageSizes|length %}
+                    <div class="dropdown">
+                        <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" title="Filter the list of rules">
+                            <i class="ti ti-file"></i>
+                            {{ 'gridTable.pageSize'|trans({'%number%': table.perPage}) }}
+                        </button>
+                        <div class="dropdown-menu">
+                            {% for pageSize in table.pageSizes %}
+                                <a href="{{ path(route, routeParams|merge({'page': 1, 'perPage': pageSize})) }}" class="dropdown-item {% if pageSize == table.perPage %}active{% endif %}">
+                                    <i class="ti ti-check {% if pageSize != table.perPage %}invisible{% endif %}"></i>
+                                    {{ 'gridTable.pageSize'|trans({'%number%': '<strong>' ~ pageSize ~ '</strong>'})|raw }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="grid-table-pagination">
+                <ul class="pagination">
+                    {% set isFirstPage = table.page == 1 %}
+                    {% set isLastPage = table.page == table.totalPages %}
+                    <li class="page-item {% if isFirstPage %}disabled{% endif %}">
+                        <a class="page-link" {% if isFirstPage %}href="#" tabindex="-1" aria-disabled="true"{% else %}href="{{ path(route, routeParams|merge({'page': table.page - 1})) }}"{% endif %}>
+                            <span class="d-block d-md-none">
+                                <i class="ti ti-chevron-left"></i>
+                                <span class="visually-hidden">{{ 'gridTable.previous'|trans }}</span>
+                            </span>
+                            <span class="d-none d-md-block">
+                                {{ 'gridTable.previous'|trans }}
+                            </span>
+                        </a>
+                    </li>
+                    {% set paginationTolerance = (table.page < 2 or table.page > table.totalPages - 2) ? 3 : 2 %}
+                    {% for page in range(1, table.totalPages) %}
+                        {% if page == 1 or page == table.totalPages or (table.page - paginationTolerance < page and page < table.page + paginationTolerance) %}
+                            {% if page == table.totalPages and table.page < table.totalPages - paginationTolerance %}
+                                <li class="page-item">
+                                    <span class="page-link disabled spacer">…</span>
+                                </li>
+                            {% endif %}
+                            <li class="page-item {% if table.page == page %}active{% endif %}">
+                                <a class="page-link" href="{{ path(route, routeParams|merge({'page': page})) }}">{{ page }}</a>
+                            </li>
+                            {% if page == 1 and table.page > 3 %}
+                                <li class="page-item">
+                                    <span class="page-link disabled spacer">…</span>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if isLastPage %}disabled{% endif %}">
+                        <a class="page-link" {% if isLastPage %}href="#" tabindex="-1" aria-disabled="true"{% else %}href="{{ path(route, routeParams|merge({'page': table.page + 1})) }}"{% endif %}>
+                            <span class="d-block d-md-none">
+                                <i class="ti ti-chevron-right"></i>
+                                <span class="visually-hidden">{{ 'gridTable.next'|trans }}</span>
+                            </span>
+                            <span class="d-none d-md-block">
+                                {{ 'gridTable.next'|trans }}
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+</div>
