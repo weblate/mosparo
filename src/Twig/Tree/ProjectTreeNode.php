@@ -84,11 +84,17 @@ class ProjectTreeNode
 
     public function sort(): void
     {
-        $projectGroupSortCriteria = (new Criteria(accessRawFieldValues: true))->orderBy(['projectGroup.name' => Order::Ascending]);
-        $projectSortCriteria = (new Criteria(accessRawFieldValues: true))->orderBy(['name' => Order::Descending]);
+        $projectGroupIterator = $this->children->getIterator();
+        $projectGroupIterator->uasort(function (ProjectTreeNode $a, ProjectTreeNode $b) {
+            return strnatcasecmp($a->getProjectGroup()->getName(), $b->getProjectGroup()->getName());
+        });
+        $this->children = new ArrayCollection(iterator_to_array($projectGroupIterator));
 
-        $this->children = $this->children->matching($projectGroupSortCriteria);
-        $this->projects = $this->projects->matching($projectSortCriteria);
+        $projectIterator = $this->projects->getIterator();
+        $projectIterator->uasort(function (Project $a, Project $b) {
+            return strnatcasecmp($a->getName(), $b->getName());
+        });
+        $this->projects = new ArrayCollection(iterator_to_array($projectIterator));
 
         foreach ($this->children as $child) {
             $child->sort();
