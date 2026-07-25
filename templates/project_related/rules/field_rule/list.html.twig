@@ -49,9 +49,22 @@
 {% endblock %}
 
 {% block rulesPageBody %}
+    {% set emptyMessage %}
+        <div class="text-center">
+            <p>{{ 'rules.fieldRule.list.empty'|trans }}</p>
+
+            {% if canManage %}
+                <a href="{{ path('rules_field_rule_create_choose_type', { '_projectId': activeProject.id }) }}" class="btn btn-success add-button">
+                    <i class="ti ti-plus"></i>
+                    <span>{{ 'rules.fieldRule.create.title'|trans }}</span>
+                </a>
+            {% endif %}
+        </div>
+    {% endset %}
+
     <div class="row">
         <div class="col">
-            {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'rules'} %}
+            {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'rules', 'emptyMessage': emptyMessage, 'emptyMessageRaw': true} %}
         </div>
     </div>
 {% endblock %}

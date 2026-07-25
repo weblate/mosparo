@@ -31,10 +31,23 @@
 {% endblock %}
 
 {% block pageBody %}
+    {% set emptyMessage %}
+        <div class="text-center">
+            <p>{{ 'rulePackage.list.empty'|trans }}</p>
+
+            {% if canManage %}
+                <a href="{{ path('rule_package_add_choose_type', { '_projectId': activeProject.id }) }}" class="btn btn-success add-button">
+                    <i class="ti ti-plus"></i>
+                    <span>{{ 'rulePackage.add.title'|trans }}</span>
+                </a>
+            {% endif %}
+        </div>
+    {% endset %}
+
     <div class="container-xl">
         <div class="row">
             <div class="col">
-                {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'rulePackages'} %}
+                {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'rulePackages', 'emptyMessage': emptyMessage, 'emptyMessageRaw': true} %}
             </div>
         </div>
     </div>

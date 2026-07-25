@@ -91,7 +91,15 @@
             </div>
         {% else %}
             <div class="grid-table-empty">
-                {{ 'gridTable.noItemsAvailable'|trans }}
+                {% if emptyMessage is defined %}
+                    {% if emptyMessageRaw is defined and emptyMessageRaw %}
+                        {{ emptyMessage|raw }}
+                    {% else %}
+                        {{ emptyMessage }}
+                    {% endif %}
+                {% else %}
+                    {{ 'gridTable.noItemsAvailable'|trans }}
+                {% endif %}
             </div>
         {% endfor %}
     </div>

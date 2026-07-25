@@ -57,7 +57,19 @@
                     </a>
                 </div>
             </div>
-            {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'originBasedSecurityGuidelines'} %}
+
+            {% set emptyMessage %}
+                <div class="text-center">
+                    <p>{{ 'settings.security.guideline.list.empty'|trans }}</p>
+
+                    <a href="{{ path('settings_security_guideline_add', { '_projectId': activeProject.id }) }}" class="btn btn-success">
+                        <i class="ti ti-plus"></i>
+                        {{ 'settings.security.originBasedSecuritySettings.add.title'|trans }}
+                    </a>
+                </div>
+            {% endset %}
+
+            {% include 'ui/grid_table/table.html.twig' with {'table': table, 'identifier': 'originBasedSecurityGuidelines', 'emptyMessage': emptyMessage, 'emptyMessageRaw': true} %}
         </div>
     </div>
 {% endblock %}
