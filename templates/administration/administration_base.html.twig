@@ -3,7 +3,14 @@
 {% trans_default_domain 'mosparo' %}
 
 {% block documentTitle %}{{ 'administration.title'|trans }} - {{ parent() }}{% endblock %}
-{% block pagePreTitle %}{{ parent() }} {{ 'administration.title'|trans }} <i class="ti ti-chevron-right"></i>{% endblock %}
+
+{% block breadcrumbsContainer %}
+    {% set breadcrumbs = breadcrumbs|merge([
+        {'title': 'administration.title'|trans, 'url': path('administration_overview')},
+    ]) %}
+
+    {{ parent() }}
+{% endblock %}
 
 {% block pageFlashes %}
 {% endblock %}

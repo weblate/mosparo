@@ -1,4 +1,21 @@
 {% extends 'base.html.twig' %}
 
+{% trans_default_domain 'mosparo' %}
+
 {% block documentTitle %}{{ activeProject.name }} - {{ parent() }}{% endblock %}
-{% block pagePreTitle %}{{ activeProject.name }}  <i class="ti ti-chevron-right"></i>{% endblock %}
+
+{% block breadcrumbsContainer %}
+    {% set breadcrumbs = breadcrumbs|merge([
+        {'title': activeProject.name, 'url': path('project_dashboard', {'_projectId': activeProject.id})},
+    ]) %}
+
+    {% if not activeProject.projectGroup is null %}
+        {% set breadcrumbs = breadcrumbs|merge(get_project_group_breadcrumbs(activeProject.projectGroup)) %}
+    {% endif %}
+
+    {% set breadcrumbs = breadcrumbs|merge([
+        {'title': 'projectGroup.mainGroup'|trans, 'url': path('project_list_root')},
+    ]) %}
+
+    {{ parent() }}
+{% endblock %}

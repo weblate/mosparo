@@ -9,7 +9,7 @@
 {% endif %}
 
 {% block documentTitle %}{{ pageTitle }} - {{ parent() }}{% endblock %}
-{% block pagePreTitle %}{{ parent() }} {{ 'administration.user.title'|trans }}  <i class="ti ti-chevron-right"></i>{% endblock %}
+{% block breadcrumbsContainer %}{% endblock %}
 
 {% block pageBody %}
     <div class="container-tight pb-4">

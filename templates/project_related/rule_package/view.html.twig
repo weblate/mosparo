@@ -5,8 +5,15 @@
 {% trans_default_domain 'mosparo' %}
 
 {% block documentTitle %}{{ 'rulePackage.view.title'|trans({ '%rulePackageName%': rulePackage.name }) }} - {{ parent() }}{% endblock %}
-{% block pagePreTitle %}{{ parent() }} {{ 'rulePackage.title'|trans }} <i class="ti ti-chevron-right"></i>{% endblock %}
 {% block pageTitle %}{{ 'rulePackage.view.title'|trans({ '%rulePackageName%': rulePackage.name }) }} {% endblock %}
+
+{% block breadcrumbsContainer %}
+    {% set breadcrumbs = breadcrumbs|merge([
+        {'title': 'rulePackage.title'|trans, 'url': path('rule_package_list', {'_projectId': activeProject.id})},
+    ]) %}
+
+    {{ parent() }}
+{% endblock %}
 
 {% block pageTitleColumn %}
     {{ parent() }}

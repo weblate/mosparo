@@ -3,7 +3,7 @@
 {% trans_default_domain 'mosparo' %}
 
 {% block documentTitle %}{{ 'settings.projectMember.delete.title'|trans({ '%projectMemberName%': projectMember.user.email }) }} - {{ parent() }}{% endblock %}
-{% block pagePreTitle %}{% endblock %}
+{% block breadcrumbsContainer %}{% endblock %}
 {% block pageTitle %}{% endblock %}
 
 {% block pageBody %}

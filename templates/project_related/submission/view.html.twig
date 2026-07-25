@@ -3,8 +3,15 @@
 {% trans_default_domain 'mosparo' %}
 
 {% block documentTitle %}{{ 'submission.view.title'|trans({ '%submissionId%': submission.id }) }} - {{ parent() }}{% endblock %}
-{% block pagePreTitle %}{{ parent() }} {{ 'submission.title'|trans }} <i class="ti ti-chevron-right"></i>{% endblock %}
 {% block pageTitle %}{{ 'submission.view.title'|trans({ '%submissionId%': submission.id }) }}{% endblock %}
+
+{% block breadcrumbsContainer %}
+    {% set breadcrumbs = breadcrumbs|merge([
+        {'title': 'submission.title'|trans, 'url': path('submission_list', {'_projectId': activeProject.id})},
+    ]) %}
+
+    {{ parent() }}
+{% endblock %}
 
 {% macro dataTable(data, helpText) %}
     <table class="table table-bordered table-striped">

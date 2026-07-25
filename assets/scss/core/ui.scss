@@ -35,3 +35,21 @@
 .modal-status ~ .modal-loader {
     top: 2px;
 }
+
+.breadcrumb {
+    .breadcrumb-item {
+        padding-left: 0;
+        padding-right: var(--tblr-breadcrumb-item-padding-x);
+
+        &::before {
+            display: none !important;
+        }
+
+        &::after {
+            float: right;
+            padding-left: var(--tblr-breadcrumb-item-padding-x);
+            color: var(--tblr-breadcrumb-divider-color);
+            content: var(--tblr-breadcrumb-divider, "/");
+        }
+    }
+}

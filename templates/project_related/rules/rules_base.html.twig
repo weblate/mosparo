@@ -3,7 +3,14 @@
 {% trans_default_domain 'mosparo' %}
 
 {% block documentTitle %}{{ 'rules.title'|trans }} - {{ parent() }}{% endblock %}
-{% block pagePreTitle %}{{ parent() }} {{ 'rules.title'|trans }}  <i class="ti ti-chevron-right"></i>{% endblock %}
+
+{% block breadcrumbsContainer %}
+    {% set breadcrumbs = breadcrumbs|merge([
+        {'title': 'rules.title'|trans, 'url': path('rules_submission_rule_list', {'_projectId': activeProject.id})},
+    ]) %}
+
+    {{ parent() }}
+{% endblock %}
 
 {% block pageFlashes %}
 {% endblock %}

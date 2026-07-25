@@ -3,8 +3,15 @@
 {% trans_default_domain 'mosparo' %}
 
 {% block documentTitle %}{{ 'settings.security.generalSecuritySettings.action'|trans }} - {{ 'settings.security.title'|trans }} - {{ parent() }}{% endblock %}
-{% block pagePreTitle %}{{ parent() }} {{ 'settings.security.title'|trans }}  <i class="ti ti-chevron-right"></i>{% endblock %}
 {% block pageTitle %}{% endblock %}
+
+{% block breadcrumbsContainer %}
+    {% set breadcrumbs = breadcrumbs|merge([
+        {'title': 'settings.security.title'|trans, 'url': path('settings_security', {'_projectId': activeProject.id})},
+    ]) %}
+
+    {{ parent() }}
+{% endblock %}
 
 {% block pageBody %}
     <div class="container-xl pb-4">

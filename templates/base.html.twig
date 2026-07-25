@@ -1,6 +1,7 @@
 {% trans_default_domain 'mosparo' %}
 
 {% set route = app.request.attributes.get('_route') %}
+{% set breadcrumbs = breadcrumbs|default([]) %}
 
 <!DOCTYPE html>
 <html lang="{{ app.request.locale }}">
@@ -337,11 +338,18 @@
                                     <div class="row align-items-end">
                                         {% block pageTitleColumn %}
                                             <div class="col">
-                                                <div class="page-pretitle">
-                                                    {% block pagePreTitle %}{% endblock %}
-                                                </div>
                                                 {% block breadcrumbsContainer %}
-                                                    <div class="mb-1">{% block breadcrumbs %}{% endblock %}</div>
+                                                    {% if breadcrumbs|length %}
+                                                        <div class="mb-1">
+                                                            {% block breadcrumbs %}
+                                                                <ol class="breadcrumb" aria-label="breadcrumbs">
+                                                                    {% for item in breadcrumbs|reverse %}
+                                                                        <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.title }}</a></li>
+                                                                    {% endfor %}
+                                                                </ol>
+                                                            {% endblock %}
+                                                        </div>
+                                                    {% endif %}
                                                 {% endblock %}
                                                 <h1 class="page-title">
                                                     {% block pageTitle %}{% endblock %}

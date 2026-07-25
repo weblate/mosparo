@@ -13,7 +13,7 @@
     </span>
 {% endblock %}
 
-{% macro breadcrumbItem(item, first, baseQuery) %}
+{#{% macro breadcrumbItem(item, first, baseQuery) %}
     {% if item %}
         {{ _self.breadcrumbItem(item.parent, false, baseQuery) }}
         <li class="breadcrumb-item {% if first %}active{% endif %}"><a href="{{ path('project_list_group', baseQuery|merge({'projectGroup': item.id})) }}">{{ item.name }}</a></li>
@@ -26,6 +26,24 @@
     <ol class="breadcrumb" aria-label="breadcrumbs">
         {{ _self.breadcrumbItem(projectGroup, true, baseQuery) }}
     </ol>
+{% endblock %}#}
+
+{% block breadcrumbsContainer %}
+    {% if not projectGroup is null %}
+        {% set breadcrumbs = breadcrumbs|merge([
+            {'title': projectGroup.name, 'url': path('project_list_group', {'projectGroup': projectGroup.id})},
+        ]) %}
+
+        {% if not projectGroup.parent is null %}
+            {% set breadcrumbs = breadcrumbs|merge(get_project_group_breadcrumbs(projectGroup.parent)) %}
+        {% endif %}
+    {% endif %}
+
+    {% set breadcrumbs = breadcrumbs|merge([
+        {'title': 'projectGroup.mainGroup'|trans, 'url': path('project_list_root')},
+    ]) %}
+
+    {{ parent() }}
 {% endblock %}
 
 {% block pageTitleColumn %}

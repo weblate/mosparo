@@ -3,7 +3,7 @@
 {% trans_default_domain 'mosparo' %}
 
 {% block documentTitle %}{{ 'project.delete.title'|trans({ '%projectName%': project.name }) }} - {{ parent() }}{% endblock %}
-{% block pageTitle %}{% endblock %}
+{% block breadcrumbsContainer %}{% endblock %}
 
 {% set routeSuffix = project.projectGroup ? 'group' : 'root' %}
 

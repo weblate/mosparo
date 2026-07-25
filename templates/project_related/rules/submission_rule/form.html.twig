@@ -3,7 +3,7 @@
 {% trans_default_domain 'mosparo' %}
 
 {% block documentTitle %}{{ 'rules.submissionRule.configure.title'|trans({ '%ruleName%': submissionRule.name|trans }) }} - {{ 'rules.submissionRule.title'|trans }} - {{ parent() }}{% endblock %}
-{% block pagePreTitle %}{% endblock %}
+{% block breadcrumbsContainer %}{% endblock %}
 
 {% block pageBody %}
     <div class="container-tight pb-4">
