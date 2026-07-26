@@ -202,7 +202,7 @@ rules:
       type: Type
       status: Status
       actions: Actions
-      empty: No field rule available.
+      empty: No field rules found.
 
     createChooseType:
       title: Choose type
@@ -494,7 +494,7 @@ rulePackage:
     refreshedAt: Refreshed at
     updatedAt: Updated at
     actions: Actions
-    empty: No rule package available.
+    empty: No rule packages found.
 
   addChooseType:
     title: Choose type
@@ -666,7 +666,7 @@ submission:
     valid: Valid
     verifiedAt: Verified at
     actions: Actions
-    empty: No submissions available.
+    empty: No submissions found.
 
   filter:
     dropdown: Filter the list of submissions
@@ -974,7 +974,7 @@ settings:
         name: Name
         priority: Priority
         actions: Actions
-        empty: No origin-based security guidelines available.
+        empty: No origin-based security guidelines found.
 
       add:
         title: Add guideline
@@ -1232,7 +1232,7 @@ settings:
       translationKey: Base text
       text: Translated text
       actions: Actions
-      empty: No translation available.
+      empty: No translations found.
 
     add:
       title: Add translation
