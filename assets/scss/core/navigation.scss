@@ -13,6 +13,27 @@
     }
 }
 
+.nav-item {
+    .nav-link {
+        &:hover,
+        &:focus {
+            background-color: var(--tblr-gray-100);
+        }
+    }
+}
+
+[data-bs-theme=dark],
+body[data-bs-theme=dark] [data-bs-theme=light] {
+    .nav-item {
+        .nav-link {
+            &:hover,
+            &:focus {
+                background-color: var(--tblr-gray-700);
+            }
+        }
+    }
+}
+
 .nav-tabs {
     .nav-item {
         &.only-icon {
