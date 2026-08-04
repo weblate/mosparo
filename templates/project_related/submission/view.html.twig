@@ -121,6 +121,22 @@
     {% endif %}
 {% endmacro %}
 
+{% macro valueToolbar() -%}
+    <div class="value-toolbar">
+        <div class="btn-group">
+            <button type="button" class="btn btn-secondary btn-icon-only btn-copy-value">
+                <i class="ti ti-copy"></i>
+            </button>
+            {% if canManage %}
+                <button type="button" class="btn btn-secondary btn-add-value-to-rule">
+                    <i class="ti ti-plus"></i>
+                    {{ 'action.addToRule'|trans }}
+                </button>
+            {% endif %}
+        </div>
+    </div>
+{%- endmacro %}
+
 {% block pageBody %}
     <div class="container-xl">
         <div class="row">
@@ -488,12 +504,20 @@
                                                     <ul>
                                                         {% for subValue in field.value %}
                                                             <li>
-                                                                <code class="submission-data">{{ subValue|escape|mark_invisible_characters }}</code>
+                                                                <code class="submission-data" data-field-path="{{ groupKey }}.{{ field.fieldPath }}">
+                                                                    <span>{{- subValue|escape|mark_invisible_characters -}}</span>
+                                                                    {{- _self.valueToolbar() -}}
+                                                                </code>
                                                             </li>
                                                         {% endfor %}
                                                     </ul>
                                                 {% elseif field.value is defined and not (field.value is iterable) and field.value|trim != '' %}
-                                                    <code class="submission-data">{{ field.value|escape|mark_invisible_characters }}</code>
+                                                    <code class="submission-data" data-field-path="{{ groupKey }}.{{ field.fieldPath }}">
+                                                        {#-  -#}
+                                                        <span>{{- field.value|escape|mark_invisible_characters -}}</span>
+                                                        {#-  -#}
+                                                        {{- _self.valueToolbar() -}}
+                                                    </code>
                                                 {% else %}
                                                     <em>{{ 'general.empty'|trans }}</em>
                                                 {% endif %}
@@ -1299,4 +1323,189 @@
             </div>
         </div>
     {% endif %}
+
+    {% if canManage %}
+        <div class="modal modal-blur fade" tabindex="-1" id="add-value-to-rule-modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="ti ti-input-x"></i>
+                            {{ 'submission.view.addValue.title'|trans }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'action.close'|trans }}"></button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn me-auto" data-bs-dismiss="modal" tabindex="1000">{{ 'action.close'|trans }}</button>
+                        <button type="button" class="btn btn-primary d-none" id="btn-add-value-to-rule" disabled>
+                            {{ 'action.continue'|trans }}
+                            <i class="ti ti-chevron-right ti-icon-right"></i>
+                        </button>
+                    </div>
+                    <div class="modal-loader visible">
+                        <div class="loader-content">
+                            <div class="loader"></div>
+                            <span class="mt-5">{{ 'submission.view.addValue.loading'|trans }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% cspscript %}
+        <script>
+            $(document).ready(function () {
+                $('code').each(function () {
+                    let removeOverlay = null;
+                    let overlayEl = $(this).find('.value-toolbar');
+
+                    $(this).on('mouseenter mousemove', function () {
+                        clearTimeout(removeOverlay);
+                        overlayEl.show();
+                    }).on('mouseleave', function () {
+                        removeOverlay = setTimeout(function () {
+                            overlayEl.hide();
+                        }, 250);
+                    });
+
+                    overlayEl.on('mouseleave', function () {
+                        removeOverlay = setTimeout(function () {
+                            overlayEl.hide();
+                        }, 250);
+                    });
+                });
+
+                $('code .btn-copy-value').click(function () {
+                    let codeEl = $(this).parents('code');
+                    let buttonEl = $(this);
+
+                    navigator.clipboard.writeText(codeEl.find('span').text()).then(function () {
+                        buttonEl.removeClass('btn-secondary').addClass('btn-success').find('i').removeClass('ti-copy').addClass('ti-clipboard-check');
+                    }, function () {
+                        buttonEl.removeClass('btn-secondary').addClass('btn-danger').find('i').removeClass('ti-copy').addClass('ti-clipboard-x');
+                    });
+                });
+
+                {% if canManage %}
+                    $('code .btn-add-value-to-rule').click(function () {
+                        let codeEl = $(this).parents('code');
+                        let value = codeEl.find('span').text();
+                        let fieldPath = codeEl.data('field-path');
+                        let modalEl = $('#add-value-to-rule-modal');
+
+                        $('#btn-add-value-to-rule').prop('disabled', true);
+                        modalEl.find('.modal-body').html('');
+                        modalEl.find('.modal-loader').addClass('visible');
+                        modalEl.data({
+                            step: 1,
+                            value: value,
+                            fieldPath: fieldPath,
+                        });
+                        modalEl.modal('show');
+
+                        $.get(
+                            '{{ path('rules_field_rule_add_value_get_options', {'_projectId': activeProject.id}) }}',
+                            {value: value, fieldPath: fieldPath},
+                            function (responseData) {
+                                if (typeof responseData.unauthorized !== 'undefined') {
+                                    window.location.reload();
+                                    return;
+                                }
+
+                                if (typeof responseData.error !== 'undefined') {
+                                    return;
+                                }
+
+                                modalEl.find('.modal-body').html(responseData.content);
+                                modalEl.find('.modal-loader').removeClass('visible');
+                            },
+                            'json'
+                        );
+                    });
+
+                    $('#add-value-to-rule-modal').on('change', 'input[name="action"]', function () {
+                        let containerRulesEl = $('#add-value-to-rule-modal .rule-options');
+                        let containerRuleTypesEl = $('#add-value-to-rule-modal .rule-type-options');
+
+                        containerRulesEl.addClass('d-none');
+                        containerRuleTypesEl.addClass('d-none');
+
+                        if ($(this).val() === 'choose-rule') {
+                            containerRulesEl.removeClass('d-none');
+                        } else {
+                            containerRuleTypesEl.removeClass('d-none');
+                        }
+                    }).on('change', 'input[name="rule"], input[name="rule_type"]', function () {
+                        $('#btn-add-value-to-rule').prop('disabled', false).removeClass('d-none');
+                    });
+
+                    $('#btn-add-value-to-rule').click(function () {
+                        let buttonEl = $(this);
+                        let modalEl = $('#add-value-to-rule-modal');
+                        modalEl.find('.modal-loader').addClass('visible');
+                        buttonEl.prop('disabled', true);
+
+                        let step = modalEl.data('step');
+
+                        if (step === 1) {
+                            let data = {
+                                value: modalEl.data('value'),
+                                fieldPath: modalEl.data('fieldPath'),
+                                action: $('#add-value-to-rule-modal input[name="action"]:checked').val(),
+                                rule: $('#add-value-to-rule-modal input[name="rule"]:checked').val(),
+                                ruleType: $('#add-value-to-rule-modal input[name="rule_type"]:checked').val(),
+                            }
+
+                            $.get('{{ path('rules_field_rule_add_value_form', {'_projectId': activeProject.id}) }}', data, function (responseData) {
+                                if (typeof responseData.unauthorized !== 'undefined') {
+                                    window.location.reload();
+                                    return;
+                                }
+
+                                if (typeof responseData.error !== 'undefined') {
+                                    return;
+                                }
+
+                                modalEl.find('.modal-body').html(responseData.content);
+                                modalEl.find('.modal-loader').removeClass('visible');
+                                modalEl.data('step', 2);
+                                modalEl.data('url', responseData.url);
+                                buttonEl.prop('disabled', false);
+                            }, 'json');
+                        } else if (step === 2) {
+                            let data = modalEl.find('.modal-body form').serialize();
+
+                            $.post(modalEl.data('url'), data, function (responseData) {
+                                if (typeof responseData.unauthorized !== 'undefined') {
+                                    window.location.reload();
+                                    return;
+                                }
+
+                                if (typeof responseData.error !== 'undefined') {
+                                    return;
+                                }
+
+                                modalEl.find('.modal-body').html(responseData.content);
+                                modalEl.find('.modal-loader').removeClass('visible');
+
+                                if (responseData.success) {
+                                    buttonEl.addClass('d-none');
+                                }
+
+                                buttonEl.prop('disabled', false);
+                            }, 'json');
+                        }
+                    });
+                {% endif %}
+            });
+        </script>
+    {% endcspscript %}
 {% endblock %}

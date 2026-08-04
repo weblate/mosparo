@@ -2,6 +2,8 @@
 
 namespace Mosparo\Rules\FieldRule\Type;
 
+use Mosparo\Entity\RuleItem;
+
 abstract class AbstractRuleType implements RuleTypeInterface
 {
     protected string $key = '';
@@ -67,5 +69,10 @@ abstract class AbstractRuleType implements RuleTypeInterface
     public function getValidatorPattern(): array
     {
         return [];
+    }
+
+    public function convertValueIntoRuleItem(string $value): RuleItem
+    {
+        return (new RuleItem())->setValue($value);
     }
 }

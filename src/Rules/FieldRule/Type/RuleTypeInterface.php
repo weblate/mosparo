@@ -2,6 +2,8 @@
 
 namespace Mosparo\Rules\FieldRule\Type;
 
+use Mosparo\Entity\RuleItem;
+
 interface RuleTypeInterface
 {
     public function getKey(): string;
@@ -15,4 +17,5 @@ interface RuleTypeInterface
     public function allowAddMultiple(): bool;
     public function formatValue(string $value, string $locale = ''): string;
     public function getValidatorPattern(): array;
+    public function convertValueIntoRuleItem(string $value): RuleItem;
 }

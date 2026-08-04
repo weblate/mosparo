@@ -2,6 +2,7 @@
 
 namespace Mosparo\Rules\FieldRule\Type;
 
+use Mosparo\Entity\RuleItem;
 use Mosparo\Rules\FieldRule\Tester\ProviderRuleTester;
 
 final class ProviderRuleType extends AbstractRuleType
@@ -30,5 +31,20 @@ final class ProviderRuleType extends AbstractRuleType
             'asNumber' => '^\d{1,10}$',
             'country' => '^[A-Z]{2}$',
         ];
+    }
+
+    public function convertValueIntoRuleItem(string $value): RuleItem
+    {
+        $ruleItem = (new RuleItem())->setValue($value);
+        $validatorPatterns = $this->getValidatorPattern();
+
+        foreach ($validatorPatterns as $subtype => $pattern) {
+            if (preg_match('/' . $pattern . '/', $value)) {
+                $ruleItem->setType($subtype);
+                break;
+            }
+        }
+
+        return $ruleItem;
     }
 }

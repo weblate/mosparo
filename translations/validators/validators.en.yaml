@@ -45,3 +45,9 @@ hosts:
 translation:
     locale:
         invalidFormat: Please specify the locale in the correct format. Enter a two-character language code or a combination of the two-character language code together with the country code.
+
+rules:
+  fieldRule:
+    value:
+      alreadyExists: This value already exists in the selected rule.
+      invalidFormat: The value is invalid for this rule item type.

@@ -1,0 +1,107 @@
+{% trans_default_domain 'mosparo' %}
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-3">{{ 'submission.view.addValue.summary.field'|trans }}</dt>
+            <dd class="col-9"><code>{{ name }}</code></dd>
+            <dt class="col-3">{{ 'submission.view.addValue.summary.value'|trans }}</dt>
+            <dd class="col-9"><code>{{ value }}</code></dd>
+        </dl>
+    </div>
+</div>
+
+<div class="mt-3">
+    <h4 class="form-label">{{ 'submission.view.addValue.options.chooseOption'|trans }}</h4>
+    <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+        <label class="form-selectgroup-item flex-fill">
+            <input type="radio" name="action" value="choose-rule" class="form-selectgroup-input">
+            <div class="form-selectgroup-label d-flex align-items-center p-3">
+                <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                </div>
+                <div class="form-selectgroup-label-content d-flex align-items-center">
+                    <div>
+                        <div class="font-weight-medium">{{ 'submission.view.addValue.options.optionAddItemTitle'|trans }}</div>
+                        <div class="text-secondary">{{ 'submission.view.addValue.options.optionAddItemDescription'|trans }}</div>
+                    </div>
+                </div>
+            </div>
+        </label>
+        <label class="form-selectgroup-item flex-fill">
+            <input type="radio" name="action" value="add-rule" class="form-selectgroup-input">
+            <div class="form-selectgroup-label d-flex align-items-center p-3">
+                <div class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                </div>
+                <div class="form-selectgroup-label-content d-flex align-items-center">
+                    <div>
+                        <div class="font-weight-medium">{{ 'submission.view.addValue.options.optionAddRuleTitle'|trans }}</div>
+                        <div class="text-secondary">{{ 'submission.view.addValue.options.optionAddRuleDescription'|trans }}</div>
+                    </div>
+                </div>
+            </div>
+        </label>
+    </div>
+</div>
+
+<div class="mt-3 d-none rule-options">
+    <h4 class="form-label">{{ 'submission.view.addValue.options.addItemOptionTitle'|trans }}</h4>
+    <div class="options-container">
+        <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+            {% for rule in possibleFieldRules %}
+                <label class="form-selectgroup-item flex-fill">
+                    <input type="radio" name="rule" value="{{ rule.id }}" class="form-selectgroup-input">
+                    <div class="form-selectgroup-label d-flex align-items-center p-3">
+                        <div class="me-3">
+                            <span class="form-selectgroup-check"></span>
+                        </div>
+                        <div class="form-selectgroup-label-content d-flex align-items-center">
+                            {% set ruleType = rule_type(rule.type) %}
+                            <span class="rule-type-icon-large">
+                                <i class="{{ ruleType.icon }}"></i>
+                            </span>
+                            <div>
+                                <div class="font-weight-medium">{{ rule.name }}</div>
+                                <div class="text-secondary">
+                                    {{ ruleType.name|trans }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="mt-3 d-none rule-type-options">
+    <h4 class="form-label">{{ 'submission.view.addValue.options.addRuleOptionTitle'|trans }}</h4>
+    <div class="options-container">
+        <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+            {% for ruleType in possibleRuleTypes %}
+                <label class="form-selectgroup-item flex-fill">
+                    <input type="radio" name="rule_type" value="{{ ruleType.key }}" class="form-selectgroup-input">
+                    <div class="form-selectgroup-label d-flex align-items-center p-3">
+                        <div class="me-3">
+                            <span class="form-selectgroup-check"></span>
+                        </div>
+                        <div class="form-selectgroup-label-content d-flex align-items-center">
+                            <span class="rule-type-icon-large">
+                                <i class="{{ ruleType.icon }}"></i>
+                            </span>
+                            <div>
+                                <div class="font-weight-medium">
+                                    <div class="rule-type-label">
+                                        {{ ruleType.name|trans }}
+                                    </div>
+                                </div>
+                                <div class="text-secondary">{{ ruleType.description|trans }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+</div>

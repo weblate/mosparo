@@ -9,7 +9,9 @@ use Kir\StringUtils\Matching\Wildcards\Pattern;
 use Mosparo\Entity\Rule;
 use Mosparo\Entity\RuleItem;
 use Mosparo\Form\RuleFormType;
+use Mosparo\Form\RuleItemFormType;
 use Mosparo\Helper\InterfaceHelper;
+use Mosparo\Helper\RuleTesterHelper;
 use Mosparo\Rules\FieldRule\RuleTypeManager;
 use Mosparo\Rules\FieldRule\Type\RuleTypeInterface;
 use Mosparo\Rules\FieldRule\Type\UnicodeBlockRuleType;
@@ -619,6 +621,146 @@ class FieldRuleController extends AbstractController implements ProjectRelatedIn
         return $response;
     }
 
+    #[Route('/add-value-to-rule/get-options', name: 'rules_field_rule_add_value_get_options')]
+    public function addValueGetOptions(Request $request, RuleTypeManager $ruleTypeManager, RuleTesterHelper $ruleTesterHelper): Response
+    {
+        $value = $request->query->get('value');
+        $fieldPath = $request->query->get('fieldPath');
+
+        if (!$value || !$fieldPath) {
+            return new JsonResponse(['error' => true, 'errorMessage' => 'Required parameters missing.']);
+        }
+
+        $name = $this->getFieldName($fieldPath);
+
+        $possibleRuleTypes = [];
+        $possibleRuleTypeKeys = [];
+        foreach ($ruleTypeManager->getRuleTypes() as $ruleType) {
+            if ($ruleTesterHelper->isRuleTypeApplicable($ruleType, $fieldPath)) {
+                $possibleRuleTypes[] = $ruleType;
+                $possibleRuleTypeKeys[] = $ruleType->getKey();
+            }
+        }
+
+        $possibleFieldRules = [];
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select('r')
+            ->from(Rule::class, 'r')
+            ->where('r.project = :project')
+            ->andWhere('r.type IN (:possibleRuleTypes)')
+            ->setParameter('project', $this->getActiveProject())
+            ->setParameter('possibleRuleTypes', $possibleRuleTypeKeys, ArrayParameterType::STRING)
+            ->orderBy('r.name')
+        ;
+
+        foreach ($qb->getQuery()->getResult() as $rule) {
+            $possibleFieldRules[$rule->getName()] = $rule;
+        }
+
+        return new JsonResponse([
+            'content' => $this->renderView('project_related/rules/field_rule/add_value_to_rule/get_options.html.twig', [
+                'name' => $name,
+                'value' => $value,
+                'possibleRuleTypes' => $possibleRuleTypes,
+                'possibleFieldRules' => $possibleFieldRules,
+            ]),
+        ]);
+    }
+
+    #[Route('/add-value-to-rule/form', name: 'rules_field_rule_add_value_form')]
+    public function addValueForm(Request $request, RuleTypeManager $ruleTypeManager): Response
+    {
+        $value = $request->query->get('value');
+        $fieldPath = $request->query->get('fieldPath');
+        $action = $request->query->get('action');
+        $ruleId = $request->query->get('rule');
+        $ruleTypeKey = $request->query->get('ruleType');
+
+        if (!$value || !$fieldPath || !$action || (!$ruleId && !$ruleTypeKey)) {
+            return new JsonResponse(['error' => true, 'errorMessage' => 'Required parameters missing.']);
+        }
+
+        $name = $this->getFieldName($fieldPath);
+
+        $rule = null;
+        if ($action === 'choose-rule') {
+            $ruleRepository = $this->entityManager->getRepository(Rule::class);
+            $rule = $ruleRepository->find($ruleId);
+            $ruleTypeKey = $rule->getType();
+        }
+
+        $ruleType = $ruleTypeManager->getRuleType($ruleTypeKey);
+
+        if (!$rule && !$ruleType) {
+            return new JsonResponse(['error' => true, 'errorMessage' => 'Invalid action or the selected object was not found.']);
+        }
+
+        if ($rule === null) {
+            $rule = (new Rule())->setType($ruleType->getKey());;
+        }
+
+        $ruleItem = $ruleType->convertValueIntoRuleItem($value)
+            ->setRule($rule);
+
+        $data = [
+            'rule' => $rule,
+            'ruleItem' => $ruleItem,
+        ];
+        $formBuilder = $this->createFormBuilder($data, ['translation_domain' => 'mosparo']);
+
+        if ($action === 'add-rule') {
+            $formBuilder->add('rule', RuleFormType::class, ['rule_type' => $ruleType]);
+        }
+
+        $formBuilder->add('ruleItem', RuleItemFormType::class, [
+            'rule_type' => $ruleType,
+            'locale' => $request->getLocale(),
+            'block_duplicated_value' => ($action !== 'add-rule'),
+        ]);
+        $form = $formBuilder->getForm();
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($action === 'add-rule') {
+                $rule = $data['rule'];
+                $this->entityManager->persist($rule);
+            }
+
+            $ruleItem = $data['ruleItem'];
+            $ruleItem->setRule($rule);
+
+            $this->entityManager->persist($ruleItem);
+            $this->entityManager->flush();
+
+            return new JsonResponse([
+                'success' => true,
+                'content' => $this->renderView('project_related/rules/field_rule/add_value_to_rule/success.html.twig', [
+                    'action' => $action,
+                    'name' => $name,
+                    'value' => $value,
+                    'rule' => $rule,
+                ]),
+            ]);
+        }
+
+        return new JsonResponse([
+            'content' => $this->renderView('project_related/rules/field_rule/add_value_to_rule/get_form.html.twig', [
+                'action' => $action,
+                'name' => $name,
+                'value' => $value,
+                'form' => $form->createView(),
+                'rule' => $rule,
+            ]),
+            'url' => $this->generateUrl(
+                'rules_field_rule_add_value_form',
+                array_merge(
+                    ['_projectId' => $this->getActiveProject()->getId()],
+                    $request->query->all(),
+                )
+            ),
+        ]);
+    }
+
     public function buildFrontendChoices(array $subtypes): array
     {
         $choices = [];
@@ -686,5 +828,22 @@ class FieldRuleController extends AbstractController implements ProjectRelatedIn
         }
 
         return null;
+    }
+
+    protected function getFieldName(string $fieldPath): string
+    {
+        if (substr($fieldPath, 0, strpos($fieldPath, '.')) === 'client') {
+            $strings = [
+                'client.ipAddress' =>'submission.view.data.client.ipAddress',
+                'client.userAgent' =>'submission.view.data.client.userAgent',
+                'client.asNumber' => 'submission.view.data.client.asNumber',
+                'client.asOrganization' => 'submission.view.data.client.asOrganization',
+                'client.country' => 'submission.view.data.client.country',
+            ];
+
+            return $this->translator->trans($strings[$fieldPath] ?? $fieldPath, [], 'mosparo');
+        } else {
+            return substr($fieldPath, strrpos($fieldPath, '.') + 1);
+        }
     }
 }

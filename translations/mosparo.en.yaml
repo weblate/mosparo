@@ -877,6 +877,34 @@ submission:
       fieldRules: Field rules
       total: Total
 
+    addValue:
+      title: Add value to rule
+      loading: Loading form… Please wait…
+
+      summary:
+        field: 'Field:'
+        value: 'Value:'
+
+      options:
+        chooseOption: What do you wanna do?
+        optionAddItemTitle: Add to existing field rule
+        optionAddItemDescription: Choose one of the existing field rules and add the selected value to this field rule.
+        optionAddRuleTitle: Create a new field rule
+        optionAddRuleDescription: Create a new field rule and add the selected value to this new field rule.
+        addItemOptionTitle: 'Choose the field rule to which you want to add the selected value:'
+        addRuleOptionTitle: 'Choose the rule type with which you want to create a new rule:'
+
+      form:
+        newRule: Create new rule
+        existingRule: Add to rule
+        newRuleItem: Add new rule item
+
+      success:
+        newRule: New rule created
+        existingRule: Added to rule
+        successNewRule: The new rule was created successfully.
+        successNewRuleItem: The new rule item was successfully added.
+
 # Settings
 settings:
   title: Project settings
@@ -1983,6 +2011,7 @@ action:
   save: Save
   saveChanges: Save changes
   saveAndContinue: Save and continue
+  continue: Continue
   skipWizard: Skip wizard
   view: View
   edit: Edit
@@ -2012,6 +2041,7 @@ action:
   updateCache: Update cache
   goToRulePackage: Go to rule package
   goToRulePackages: Go to rule packages
+  addToRule: Add to rule
 
 # General values
 general:

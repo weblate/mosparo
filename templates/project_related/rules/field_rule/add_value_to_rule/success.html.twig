@@ -1,0 +1,51 @@
+{% trans_default_domain 'mosparo' %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-3">{{ 'submission.view.addValue.summary.field'|trans }}</dt>
+            <dd class="col-9"><code>{{ name }}</code></dd>
+            <dt class="col-3">{{ 'submission.view.addValue.summary.value'|trans }}</dt>
+            <dd class="col-9"><code>{{ value }}</code></dd>
+        </dl>
+    </div>
+</div>
+
+<div class="alert alert-success">
+    {% if action == 'add-rule' %}
+        {{ 'submission.view.addValue.success.successNewRule'|trans }}
+    {% else %}
+        {{ 'submission.view.addValue.success.successNewRuleItem'|trans }}
+    {% endif %}
+</div>
+
+{% if action == 'add-rule' %}
+    <h4 class="form-label">{{ 'submission.view.addValue.success.newRule'|trans }}</h4>
+{% else %}
+    <h4 class="form-label">{{ 'submission.view.addValue.success.existingRule'|trans }}</h4>
+{% endif %}
+<div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+    <div class="form-selectgroup-item flex-fill">
+        <a
+            href="{{ path('rules_field_rule_edit', {'_projectId': activeProject.id, 'id': rule.id}) }}"
+            target="_blank"
+            class="form-selectgroup-label d-flex align-items-center justify-content-between p-3"
+        >
+            <div class="form-selectgroup-label-content d-flex align-items-center">
+                {% set ruleType = rule_type(rule.type) %}
+                <span class="rule-type-icon-large">
+                    <i class="{{ ruleType.icon }}"></i>
+                </span>
+                <div>
+                    <div class="font-weight-medium">{{ rule.name }}</div>
+                    <div class="text-secondary">
+                        {{ ruleType.name|trans }}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary" target="_blank">Go to rule</button>
+            </div>
+        </a>
+    </div>
+</div>

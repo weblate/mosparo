@@ -4,6 +4,8 @@ namespace Mosparo\Controller;
 
 use LogicException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,8 +14,12 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     #[Route('/login', name: 'security_login', condition: 'ip_on_allow_list_routing(request.getClientIp(), env("backend_access_ip_allow_list"))')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
+        if (in_array('application/json', $request->getAcceptableContentTypes())) {
+            return new JsonResponse(['unauthorized' => $this->isGranted('IS_AUTHENTICATED_FULLY')]);
+        }
+
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
 

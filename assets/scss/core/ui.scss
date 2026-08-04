@@ -53,3 +53,21 @@
         }
     }
 }
+
+.options-container {
+    max-height: 450px;
+
+    overflow-y: auto;
+
+    padding: 0.5rem;
+
+    border: 1px solid var(--tblr-border-color-translucent);
+    border-radius: var(--tblr-border-radius);
+    background: var(--tblr-body-bg);
+}
+
+.form-selectgroup-boxes {
+    a.form-selectgroup-label {
+        text-decoration: none;
+    }
+}

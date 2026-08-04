@@ -21,8 +21,6 @@ class RuleFormType extends AbstractType
             return;
         }
 
-        $locale = $options['locale'] ?? null;
-
         $readonly = $options['readonly'];
 
         $builder

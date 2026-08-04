@@ -279,7 +279,7 @@ class RuleTesterHelper
         return $orExpr;
     }
 
-    protected function isRuleTypeApplicable(RuleTypeInterface $ruleType, $path): bool
+    public function isRuleTypeApplicable(RuleTypeInterface $ruleType, $path): bool
     {
         foreach ($ruleType->getTargetFieldKeys() as $fieldKey) {
             if (str_starts_with($path, $fieldKey)) {

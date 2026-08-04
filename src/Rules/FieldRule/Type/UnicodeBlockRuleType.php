@@ -2,6 +2,7 @@
 
 namespace Mosparo\Rules\FieldRule\Type;
 
+use Mosparo\Entity\RuleItem;
 use Mosparo\Rules\FieldRule\Tester\UnicodeBlockRuleTester;
 use zepi\Unicode\UnicodeIndex;
 
@@ -62,5 +63,26 @@ final class UnicodeBlockRuleType extends AbstractRuleType
         });
 
         return $blockChoices;
+    }
+
+    public function convertValueIntoRuleItem(string $value): RuleItem
+    {
+        $matchingBlocks = [];
+        $unicodeIndex = new UnicodeIndex();
+        foreach ($unicodeIndex->getBlocks() as $block) {
+            preg_match_all($block->getRegex(), $value, $matches, PREG_SET_ORDER);
+            if (count($matches)) {
+                $matchingBlocks[$block->getKey()] = count($matches);
+            }
+        }
+
+        arsort($matchingBlocks);
+
+        $ruleItem = new RuleItem();
+        if ($matchingBlocks) {
+            $ruleItem->setValue(array_key_first($matchingBlocks));
+        }
+
+        return $ruleItem;
     }
 }
