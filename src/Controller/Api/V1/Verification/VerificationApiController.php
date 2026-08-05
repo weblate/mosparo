@@ -152,7 +152,7 @@ class VerificationApiController extends AbstractController
         }
 
         $validationSignature = $this->hmacSignatureHelper->createSignature($submission->getValidationToken(), $activeProject->getPrivateKey());
-        if ($request->request->get('validationSignature') !== $validationSignature) {
+		if (!hash_equals($validationSignature, $request->request->get('validationSignature'))) {
             $submission->setValid(false);
 
             $issue = array_merge([
@@ -325,7 +325,7 @@ class VerificationApiController extends AbstractController
         }
 
         $validationSignature = $this->hmacSignatureHelper->createSignature($submission->getValidationToken(), $activeProject->getPrivateKey());
-        if ($request->request->get('validationSignature') !== $validationSignature) {
+		if (!hash_equals($validationSignature, $request->request->get('validationSignature'))) {
             $responseData = [
                 'error' => true,
                 'errorMessage' => 'Validation signature invalid.',

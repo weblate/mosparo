@@ -456,7 +456,7 @@ class RulePackageApiController extends AbstractController
         $rulePackageContent = $request->request->get('rulePackageContent');
 
         if ($request->request->has('rulePackageHash') && trim($request->request->get('rulePackageHash'))) {
-            if (hash('sha256', $rulePackageContent) !== $request->request->get('rulePackageHash')) {
+            if (!hash_equals(hash('sha256', $rulePackageContent), $request->request->get('rulePackageHash'))) {
                 // Prepare the API debug data
                 $debugInformation = [];
                 if ($activeProject->isApiDebugMode()) {

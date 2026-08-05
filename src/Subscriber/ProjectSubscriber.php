@@ -138,17 +138,17 @@ class ProjectSubscriber implements EventSubscriberInterface
 
             // Verify the request signature
             $requestHelper = new RequestHelper($publicKey, $activeProject->getPrivateKey());
-            if ($requestSignature !== $requestHelper->createHmacHash($apiEndpoint . $requestHelper->toJson($requestData))) {
+			$expectedHash = $requestHelper->createHmacHash($apiEndpoint . $requestHelper->toJson($requestData));
+			if (!hash_equals($expectedHash, $requestSignature)) {
                 // Prepare the API debug data
                 $debugInformation = [];
                 if ($activeProject->isApiDebugMode()) {
                     $debugInformation['debugInformation'] = [
                         'reason' => 'hmac_hash_invalid',
-                        'expectedHmacHash' => $requestHelper->createHmacHash($apiEndpoint . $requestHelper->toJson($requestData)),
+                        'expectedHmacHash' => $expectedHash,
                         'receivedHmacHash' => $requestSignature,
                         'payload' => $apiEndpoint . $requestHelper->toJson($requestData),
                     ];
-                    dump($apiEndpoint . $requestHelper->toJson($requestData));
                 }
 
                 $event->setResponse(new JsonResponse(['error' => true, 'errorMessage' => 'Request invalid.'] + $debugInformation, 400));
